@@ -1,6 +1,7 @@
 import datetime
 import sqlalchemy
 from sqlalchemy import Column, Integer, String, ForeignKey
+from sqlalchemy.orm import relationship
 
 from .db_class_places import Places
 from .db_class_roles import Roles
@@ -18,11 +19,13 @@ class Users(SqlAlchemyBase):
     email = Column(String, nullable=True)
     birthday = Column(String, nullable=True)
     comment = Column(String, nullable=True)
-    idRoles = Column(Integer, ForeignKey(Roles.id))
-    idPlaces = Column(Integer, ForeignKey(Places.id))
     name = Column(String, nullable=True)
     passwd = Column(String, nullable=True)
     login = Column(String, nullable=True)
     sertificate = Column(String, nullable=True)
     navigator = Column(String, nullable=True)
     winlogin = Column(String, nullable=True)
+    idRoles = Column(Integer, ForeignKey(Roles.id))
+    idPlaces = Column(Integer, ForeignKey(Places.id))
+    places = relationship(Places)
+    roles = relationship(Roles)

@@ -1,7 +1,7 @@
 
 class Const:
 #    DB: QSqlDatabase = None
-    TEST_MODE = True
+    TEST_MODE = False
     IN_TRANSACTION = False
     YEAR = 2021
     D_START = '2021-10-01'
@@ -9,7 +9,7 @@ class Const:
 
     # Access items
     ACC_PREPOD = '1%'
-    ACC_CUBIST = "'0%'"
+    ACC_CUBIST = '0%'
 
 
     # Users

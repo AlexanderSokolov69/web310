@@ -1,16 +1,15 @@
 import datetime
+import sqlalchemy
 from sqlalchemy import Column, Integer, String, ForeignKey
 from sqlalchemy.orm import relationship
 
-from .db_class_priv import Priv
-from .db_session import SqlAlchemyBase
+from data.db_session import SqlAlchemyBase
 
 
-class Roles(SqlAlchemyBase):
-    __tablename__ = 'roles'
+class Priv(SqlAlchemyBase):
+    __tablename__ = 'priv'
 
     id = Column(Integer, primary_key=True, autoincrement=True)
     name = Column(String, nullable=True)
-    idPriv = Column(Integer, ForeignKey(Priv.id))
+    access = Column(String, nullable=True)
     comment = Column(String, nullable=True)
-    priv = relationship(Priv)
