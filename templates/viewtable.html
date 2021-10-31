@@ -1,0 +1,90 @@
+{% extends "base.html" %}
+
+
+{% block header04 %}
+{% endblock %}
+{% block left_column %}
+    <form action="" method="post">
+    {{ form.hidden_tag() }}
+        <table border="0" cellpadding="4" cellspacing="2"  style="padding-left: 10px; padding-right: 10px">
+            <tbody>
+                <tr>
+                    <td align="left"><h3>Фильтры</h3></td>
+                     <td align="right">{{ form.submit(type="submit", class="btn btn-primary") }}
+                     {{ form.reset_flt(type="submit", class="btn btn-primary") }}</td>
+                </tr>
+                <tr>
+                    <td align="left">{{ form.class_list.label }}</td>
+                    <td align="right" style="width: 500px">{{ form.class_list }} {{ form.class_plus }}</td>
+                </tr>
+                <tr>
+                    <td align="left">{{ form.type_list.label }}</td>
+                    <td align="right">{{ form.type_list }} {{ form.type_plus }}</td>
+                </tr>
+                <tr>
+                    <td align="left">{{ form.place_list.label }}</td>
+                    <td align="right">{{ form.place_list }} {{ form.place_plus }}</td>
+                </tr>
+                <tr>
+                    <td align="left">{{ form.box_list.label }}</td>
+                    <td align="right">{{ form.box_list }} {{ form.box_plus }}</td>
+                </tr>
+                <tr>
+                    <td align="left">{{ form.param_str.label }}</td>
+                    <td align="right">%{{ form.param_str }}%</td>
+                </tr>
+                <tr>
+                    <td align="left">{{ form.comment_str.label }}</td>
+                    <td align="right">%{{ form.comment_str }}%</td>
+                </tr>
+                <tr>
+                    <td><hr></td>
+                    <td><hr></td>
+                </tr>
+             <tr>
+                    <td align="left"><h3>Редактор</h3></td>
+                <td align="right">{{ form.add_btn(type="submit", class="btn btn-primary") }}</td>
+
+            </tr>
+         </tbody>
+        </table>
+        <hr>
+    </form>
+ {% endblock %}
+
+{% block content %}
+    <div class="col-md6 border rounded">
+        <table border="1" cellpadding="2" cellspacing="1"  style="padding-left: 10px; padding-right: 10px">
+            <tbody>
+                <thead>
+                    <tr>
+                        <th scope="col">id</th>
+                        <th scope="col">Тип объекта</th>
+                        <th scope="col">Параметры</th>
+                        <th scope="col">Кейс</th>
+                        <th scope="col">Описание</th>
+                        <th scope="col">Помещение</th>
+                        <th scope="col">Место хранения</th>
+                    </tr>
+                </thead>
+                {% for item in items%}
+                <tr>
+                    <td align="center">
+                        <a class="navbar-brand" href="/viewitem/{{item.id}}">{{item.id}}</a>
+                    </td>
+                    <td>{{item.item_type.name}}</td>
+                    <td align="center">{{item.param}} {{item.item_type.param}}</td>
+                    <td align="center">{{item.box.name}} [{{item.place_pos}}]</td>
+                    <td>{{item.comment}}</td>
+                    <td>{{item.place.name}}</td>
+                    <td>{{item.place.param}}</td>
+                </tr>
+                {% endfor %}
+           </tbody>
+        </table>
+        <table border="0" cellpadding="2" cellspacing="1">
+            <tbody>
+           </tbody>
+        </table>
+    </div>
+{% endblock %}

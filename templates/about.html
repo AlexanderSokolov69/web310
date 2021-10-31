@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <h1>{{ title }}</h1>
+    <form action="" method="post">
+        {{ form.hidden_tag() }}
+         {% for field in form.about %}
+             <p align="left">{{ field }}</p>
+        {% endfor %}
+    <hr>
+        <p><input type="button" value="На главную страницу" onClick='location.href="/"'></p>
+    </form>
+{% endblock %}
