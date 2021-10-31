@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <h1>{{ title }}</h1>
+    <form action="" method="post">
+        {{ form.hidden_tag() }}
+        <table border="0" cellpadding="4" cellspacing="2"  style="padding-left: 10px; padding-right: 10px">
+        <tbody>
+        {% for field in form if field.name not in ['csrf_token', 'remember', 'submit'] %}
+        <tr>
+            <td align="left">{{ field.label }}</td>
+            <td align="right">{{ field(class="form-control") }}</td>
+            <td>
+                {% for error in field.errors %}
+                <a class="alert alert-danger" role="alert">
+                    {{ error }}
+                </a>
+            </td>
+            {% endfor %}
+        </tr>
+        {% endfor %}
+        </tbody>
+        </table>
+        <p>{{ form.submit(type="submit", class="btn btn-primary") }}</p>
+        <div>{{ message }}</div>
+    </form>
+{% endblock %}
+
+{% block left_column %}
+    <h3>
+    {% if not new_user %}
+        <p>
+            <a class="btn btn-success" href="/register" style="padding-left: 10px; \
+            padding-right: 10px">Регистрация</a>
+        </p>
+    {% else %}
+        <p>
+            <a class="btn btn-success" href="/login" style="padding-left: 10px; \
+            padding-right: 10px">Вход</a>
+        </p>
+    {% endif %}
+    </h3>
+{% endblock %}
+

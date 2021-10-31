@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+
+{% block left_column %}
+    <p align="left"><h3>Редактор объекта</h3></p>
+
+{% endblock %}
+
+{% block content %}
+    <form action="" method="post">
+    {{ form.hidden_tag() }}
+        <table border="0" cellpadding="4" cellspacing="2"  style="padding-left: 10px; padding-right: 10px">
+            <tbody>
+                 <tr>
+                    <td align="left">ID:объекта</td>
+                    <td align="left" style="width: 500px">{{ item_id|int }}</td>
+                </tr>
+               <tr>
+                    <td align="left">{{ form.class_list.label }}</td>
+                    <td align="left" style="width: 500px">{{ form.class_list }}</td>
+                </tr>
+                <tr>
+                    <td align="left">{{ form.type_list.label }}</td>
+                    <td align="left">{{ form.type_list }}</td>
+                </tr>
+                <tr>
+                    <td align="left">{{ form.place_list.label }}</td>
+                    <td align="left">{{ form.place_list }}</td>
+                </tr>
+                <tr>
+                    <td align="left">{{ form.box_list.label }}</td>
+                    <td align="left">{{ form.box_list }}</td>
+                </tr>
+                <tr>
+                    <td align="left">{{ form.param_str.label }}</td>
+                    <td align="left">{{ form.param_str }}</td>
+                </tr>
+                <tr>
+                    <td align="left">{{ form.place_pos_str.label }}</td>
+                    <td align="left">{{ form.place_pos_str }}</td>
+                </tr>
+                <tr>
+                    <td align="left">{{ form.comment_str.label }}</td>
+                    <td align="left">{{ form.comment_str }}</td>
+                </tr>
+          </tbody>
+        </table>
+        <p>
+        <hr>
+        {{ form.cancel_btn(type="submit", class="btn btn-primary") }}
+        {% if item_id != 0 %}
+          {{ form.edit_btn(type="submit", class="btn btn-primary") }}
+          {{ form.del_btn(type="submit", class="btn btn-primary") }}
+        {% else %}
+          {{ form.add_btn(type="submit", class="btn btn-primary") }}
+        {% endif %}
+    </form>
+ {% endblock %}
