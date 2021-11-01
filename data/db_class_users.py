@@ -29,3 +29,6 @@ class Users(SqlAlchemyBase):
     idPlaces = Column(Integer, ForeignKey(Places.id))
     places = relationship(Places)
     roles = relationship(Roles)
+
+    def __repr__(self):
+        return f"<Users(id:{self.id},name:{self.name}, winlogin:{self.winlogin})>"

@@ -8,7 +8,7 @@
                 <td style="width: 300px">
                     <h2>
                       <a class="btn btn-success" href="/about" style="padding-left: 10px; \
-                            padding-right: 10px">Каталогизатор 0.9</a>
+                            padding-right: 10px">Кубышка</a>
 
                     </h2>
                 </td>
@@ -33,10 +33,10 @@
         </tbody>
     </table>
     <hr>
-    <table border="0" cellpadding="1" cellspacing="1" style="width: 1500px">
+    <table border="0" cellpadding="1" cellspacing="1" style="width: 1900px">
         <tbody>
             <tr>
-                <td style="vertical-align: top; width: 450px">{% block left_column %}{% endblock %}</td>
+                <td style="vertical-align: top; width: 400px">{% block left_column %}{% endblock %}</td>
                 <td border="1" style="vertical-align: top">
                     <div style="height:700px; overflow-y: scroll;">
                         {% block content %}{% endblock %}
@@ -51,11 +51,8 @@
             <tr>
                 <td style="width: 400px">{% block footer01 %}
                                         <h3>
-                    {% if current_user.is_authenticated %}
-                          <a>{{ current_user.fullname }}</a>
-                          <a class="navbar-brand" href="/logout">(выход)</a>
+                    Резерв
                     </h3>
-                    {% endif %}
                     {% endblock %}</td>
                 <td>{% block footer02 %}{% endblock %}</td>
                 <td>{% block footer03 %}{% endblock %}</td>

@@ -25,3 +25,6 @@ class Rasp(SqlAlchemyBase):
     groups = relationship(Groups)
     kabs = relationship(Kabs)
     days = relationship(Days)
+
+    def __repr__(self):
+        return f"<Rasp(id:{self.id},idGroups:{self.idGroups}, name:{self.name})>"
