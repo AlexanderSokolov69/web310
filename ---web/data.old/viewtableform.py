@@ -4,7 +4,7 @@ from wtforms import StringField, PasswordField, BooleanField, SubmitField, Field
     SelectField
 from wtforms.validators import DataRequired
 from . import db_session
-from data.box import Box
+from tools.box import Box
 from .class_type import Class_type
 from .item_type import Item_type
 from .place import Place

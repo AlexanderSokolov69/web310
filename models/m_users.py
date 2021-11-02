@@ -1,0 +1,2 @@
+class UsersModel:
+    pass

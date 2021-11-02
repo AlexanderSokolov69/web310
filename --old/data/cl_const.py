@@ -1,6 +1,5 @@
-
 class Const:
-#    DB: QSqlDatabase = None
+    #    DB: QSqlDatabase = None
     TEST_MODE = False
     IN_TRANSACTION = False
     YEAR = 2021
@@ -10,7 +9,6 @@ class Const:
     # Access items
     ACC_PREPOD = '1%'
     ACC_CUBIST = '0%'
-
 
     # Users
     USR_ID = 0
@@ -101,13 +99,10 @@ class Const:
     CRS_HDAY = 6
     CRS_URL = 7
     CRS_YEAR = 8
+
     def __init__(self):
         pass
 
     def to_commit(self, con):
         con.commit()
         Const.IN_TRANSACTION = False
-
-
-
-

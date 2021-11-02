@@ -34,7 +34,7 @@ def about():
     form = About()
     if form.validate_on_submit():
         pass
-#        return redirect('/')
+    #        return redirect('/')
     return render_template('about.html', form=form)
 
 
@@ -269,10 +269,10 @@ def viewitem(item_id):
     db_sess = db_session.create_session()
     spis = db_sess.query(Items).filter(Items.id == item_id).first()
     if session.get('reset_viewform', False):
-         view_form.class_list.data = session['class_type_id']
-         view_form.type_list.data = session['item_type_id']
-         view_form.place_list.data = session['place_id']
-         view_form.box_list.data = session['box_id']
+        view_form.class_list.data = session['class_type_id']
+        view_form.type_list.data = session['item_type_id']
+        view_form.place_list.data = session['place_id']
+        view_form.box_list.data = session['box_id']
 
     if view_form.cancel_btn.data:
         session['update_spis'] = True
@@ -281,7 +281,8 @@ def viewitem(item_id):
         session['update_spis'] = True
         if view_form.add_btn.data:
             if int(request.form['box_list']) and int(request.form['place_list']) and int(request.form['type_list']):
-                obj = Items(int(request.form['type_list']), int(request.form['place_list']), int(request.form['box_list']),
+                obj = Items(int(request.form['type_list']), int(request.form['place_list']),
+                            int(request.form['box_list']),
                             request.form['param_str'], request.form['place_pos_str'], request.form['comment_str'])
                 db_sess.add(obj)
                 db_sess.commit()
@@ -295,7 +296,7 @@ def viewitem(item_id):
                 flash('Не установлены справочные значения')
         elif view_form.edit_btn.data:
             if int(request.form['box_list']) and int(request.form['place_list']) \
-                and int(request.form['type_list']) and spis:
+                    and int(request.form['type_list']) and spis:
                 spis.item_type_id = int(request.form['type_list'])
                 spis.place_id = int(request.form['place_list'])
                 spis.box_id = int(request.form['box_list'])
@@ -343,8 +344,9 @@ def logout():
 
 
 @app.after_request
-def after_request_callback( responce ):
+def after_request_callback(responce):
     return responce
+
 
 def main():
     db_session.global_init("db/database.db")

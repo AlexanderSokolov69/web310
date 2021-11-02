@@ -3,13 +3,14 @@ import sqlalchemy
 from sqlalchemy import Column, Integer, String, ForeignKey
 from sqlalchemy.orm import relationship
 
-from data.db_session import SqlAlchemyBase
+from .db_class_places import Places
+from .db_class_roles import Roles
+from .db_session import SqlAlchemyBase
 
 
-class Priv(SqlAlchemyBase):
-    __tablename__ = 'priv'
+class Monts(SqlAlchemyBase):
+    __tablename__ = 'monts'
 
     id = Column(Integer, primary_key=True, autoincrement=True)
+    num = Column(Integer, nullable=True)
     name = Column(String, nullable=True)
-    access = Column(String, nullable=True)
-    comment = Column(String, nullable=True)

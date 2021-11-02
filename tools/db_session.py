@@ -3,7 +3,7 @@ import sqlalchemy as sa
 import sqlalchemy.orm as orm
 from sqlalchemy.orm import Session
 import sqlalchemy.ext.declarative as dec
-from data.cl_const import Const
+from tools.cl_const import Const
 
 
 SqlAlchemyBase = dec.declarative_base()

@@ -3,11 +3,11 @@ from flask_wtf import FlaskForm
 from wtforms import StringField, SubmitField, IntegerField, SelectField, FloatField
 from wtforms.validators import DataRequired
 
-from data import db_session
-from data.box import Box
-from data.class_type import Class_type
-from data.item_type import Item_type
-from data.place import Place
+from tools import db_session
+from tools.box import Box
+from tools.class_type import Class_type
+from tools.item_type import Item_type
+from tools.place import Place
 
 
 class AddBox(FlaskForm):
