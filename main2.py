@@ -15,12 +15,9 @@ from data.db_class_rasp import Rasp
 from data.db_class_roles import Roles
 from data.db_class_users import Users
 from forms.f_user import LoginForm, RegisterForm
-from flask_restful import reqparse, abort, Api, Resource
-
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'yandexlyceum_secret_key'
-api = Api(app)
 login_manager = LoginManager()
 login_manager.init_app(app)
 
