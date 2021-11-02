@@ -2,6 +2,7 @@ import datetime
 import sqlalchemy
 from sqlalchemy import Column, Integer, String, ForeignKey, DateTime
 from sqlalchemy.orm import relationship
+from sqlalchemy_serializer import SerializerMixin
 
 from .db_class_places import Places
 from .db_class_roles import Roles
@@ -9,7 +10,7 @@ from .db_class_users import Users
 from .db_session import SqlAlchemyBase
 
 
-class Courses(SqlAlchemyBase):
+class Courses(SqlAlchemyBase, SerializerMixin):
     __tablename__ = 'courses'
 
     id = Column(Integer, primary_key=True, autoincrement=True)

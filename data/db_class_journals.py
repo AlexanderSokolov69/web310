@@ -2,6 +2,7 @@ import datetime
 import sqlalchemy
 from sqlalchemy import Column, Integer, String, ForeignKey
 from sqlalchemy.orm import relationship
+from sqlalchemy_serializer import SerializerMixin
 
 from .db_class_courses import Courses
 from .db_class_groups import Groups
@@ -11,7 +12,7 @@ from .db_class_users import Users
 from .db_session import SqlAlchemyBase
 
 
-class Journals(SqlAlchemyBase):
+class Journals(SqlAlchemyBase, SerializerMixin):
     __tablename__ = 'journals'
 
     id = Column(Integer, primary_key=True, autoincrement=True)

@@ -2,6 +2,7 @@ import datetime
 import sqlalchemy
 from sqlalchemy import Column, Integer, String, ForeignKey
 from sqlalchemy.orm import relationship
+from sqlalchemy_serializer import SerializerMixin
 
 from .db_class_groups import Groups
 from .db_class_places import Places
@@ -10,7 +11,7 @@ from .db_class_users import Users
 from .db_session import SqlAlchemyBase
 
 
-class GroupTable(SqlAlchemyBase):
+class GroupTable(SqlAlchemyBase, SerializerMixin):
     __tablename__ = 'group_table'
 
     id = Column(Integer, primary_key=True, autoincrement=True)

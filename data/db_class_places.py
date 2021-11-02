@@ -1,9 +1,11 @@
 import datetime
 import sqlalchemy
+from sqlalchemy_serializer import SerializerMixin
+
 from .db_session import SqlAlchemyBase
 
 
-class Places(SqlAlchemyBase):
+class Places(SqlAlchemyBase, SerializerMixin):
     __tablename__ = 'places'
 
     id = sqlalchemy.Column(sqlalchemy.Integer,

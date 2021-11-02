@@ -1,31 +1,36 @@
 {% extends "base.html" %}
 
+{% block header03 %}<h2>Расписание занятий</h2>{% endblock %}
+
 {% block content %}
-<h2>Расписание занятий</h2>
+
 <div class="col-md6 border rounded">
-<table style="padding-left: 10px; padding-right: 10px;" border="1" cellspacing="1" cellpadding="2">
-<tbody>
-<tr>
-	<th scope="col">День недели</th>
-	<th scope="col">Начало</th>
-	<th scope="col">Окончание</th>
-	<th scope="col">Кабинет</th>
-	<th scope="col">Наименование учебной группы</th>
-	<th scope="col">Наставник</th>
-	<th scope="col">Наименование учебного курса</th>
-</tr>
-{% for item in items%}
-    <tr {% if item.idDays % 2 > 0 %} style="background-color: #ffeecc;" {% endif %}>
-  		<td align="center">{{item.days.name}}</td>
-		<td align="center">{{item.tstart}}</td>
-		<td align="center">{{item.tend}}</td>
-        <td align="center" style="background-color: rgb{{item.kabs.color}};">{{item.kabs.name}}</td>
-		<td align="center"><a class="navbar-brand" href="{{item.groups.courses.url}}">{{item.groups.name}} {{item.groups.comment}}</a></td>
-		<td align="center"><a class="navbar-brand" href="{{item.groups.users.comment}}">{{item.groups.users.name}}</a></td>
-		<td><a class="navbar-brand" href="{{item.groups.courses.url}}">{{item.groups.courses.name}}</a></td>
-	</tr>
-  {% endfor %}
-</tbody>
-</table>
+    <table style="padding-left: 10px; padding-right: 10px;" border="1" cellspacing="1" cellpadding="4">
+        <tbody>
+        <tr>
+            <th scope="col">День недели</th>
+            <th scope="col">Начало</th>
+            <th scope="col">Окончание</th>
+            <th scope="col">Кабинет</th>
+            <th scope="col">Учебная группа</th>
+            <th scope="col">Наставник</th>
+            <th scope="col">Наименование учебного курса</th>
+        </tr>
+        {% for item in items%}
+        <tr {% if item.idDays % 2> 0 %} style="background-color: #ffeecc;" {% endif %}">
+            <td align="center">{{item.days.name}}</td>
+            <td align="center">{{item.tstart}}</td>
+            <td align="center">{{item.tend}}</td>
+            <td align="center" style="background-color: rgb{{item.kabs.color}};">{{item.kabs.name}}</td>
+            <td align="center"><a class="navbar-brand" href="{{item.groups.courses.url}}">
+                {{item.groups.name}} {{item.groups.comment}}</a></td>
+            <td align="center"><a class="navbar-brand" href="{{item.groups.users.comment}}">
+                {{item.groups.users.name}}</a></td>
+            <td><a class="navbar-brand" href="{{item.groups.courses.url}}">
+                {{item.groups.courses.name}}</a></td>
+        </tr>
+        {% endfor %}
+        </tbody>
+    </table>
 </div>
 {% endblock %}

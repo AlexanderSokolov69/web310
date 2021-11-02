@@ -4,7 +4,6 @@ from flask_login import UserMixin
 from sqlalchemy import Column, Integer, String, ForeignKey
 from sqlalchemy.orm import relationship
 from sqlalchemy_serializer import SerializerMixin
-
 from .cl_password import Password
 from .db_class_places import Places
 from .db_class_roles import Roles
