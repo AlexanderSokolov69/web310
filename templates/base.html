@@ -6,11 +6,11 @@
         <tbody>
             <tr>
                 <td style="width: 300px">
-                    <h2>
+                    <h1>
                       <a class="btn btn-success" href="/about" style="padding-left: 10px; \
                             padding-right: 10px">Кубышка</a>
 
-                    </h2>
+                    </h1>
                 </td>
                 <td>{% block header01 %}{% endblock %}</td>
                 <td>{% block header02 %}
@@ -50,9 +50,12 @@
         <tbody>
             <tr>
                 <td style="width: 400px">{% block footer01 %}
-                                        <h3>
-                    Резерв
-                    </h3>
+                    {% if current_user.is_authenticated %}
+                        <a>Пользователь в системе: </a><a class="navbar-brand" href="/logout">{{ current_user.name }}</a>
+                    {% else %}
+                    <p> <a class="btn btn-primary " href="/register">Зарегистрироваться</a> </p>
+                    <p> <a class="btn btn-success" href="/login">Войти</a> </p>
+                    {% endif %}
                     {% endblock %}</td>
                 <td>{% block footer02 %}{% endblock %}</td>
                 <td>{% block footer03 %}{% endblock %}</td>

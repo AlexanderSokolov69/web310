@@ -1,14 +1,16 @@
 import datetime
 import sqlalchemy
+from flask_login import UserMixin
 from sqlalchemy import Column, Integer, String, ForeignKey
 from sqlalchemy.orm import relationship
 
+from .cl_password import Password
 from .db_class_places import Places
 from .db_class_roles import Roles
 from .db_session import SqlAlchemyBase
 
 
-class Users(SqlAlchemyBase):
+class Users(SqlAlchemyBase, UserMixin):
     __tablename__ = 'users'
 
     id = Column(Integer, primary_key=True, autoincrement=True)
@@ -32,3 +34,13 @@ class Users(SqlAlchemyBase):
 
     def __repr__(self):
         return f"<Users(id:{self.id},name:{self.name}, winlogin:{self.winlogin})>"
+
+    def check_password(self, passw):
+        psw = Password()
+        psw.set_storage(self.passwd)
+        return psw.check_passwd(passw)
+
+    def set_password(self, passw, login):
+        psw = Password(passw)
+        self.login = login
+        self.passwd = psw.get_storage()
