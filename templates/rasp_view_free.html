@@ -1,5 +1,22 @@
 <div class="col-md6 border rounded">
-<table style="padding-left: 10px; padding-right: 10px;" border="1" cellspacing="1" cellpadding="2">
+<form action="" method="post">
+    {{ form.csrf_token() }}
+    {{ form.hidden_tag() }}
+    <table border="0" cellpadding="4" cellspacing="2" style="padding-left: 10px; padding-right: 10px">
+        <tbody>{% for field in form if field.name != "csrf_token" %}
+        <tr>
+                <td align="left">{{ field.label }}</td>
+                <td align="right">{{ field }}</td>
+        </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+    <hr>
+    <p>Найдено записей: {{ cnt }}</p>
+</form>
+
+
+	<table style="padding-left: 10px; padding-right: 10px;" border="1" cellspacing="1" cellpadding="2">
 <tbody>
 <tr>
 	<th scope="col">День недели</th>

@@ -7,19 +7,23 @@
             <h2><a style="padding-left: 10px; padding-right: 10px;" href="/about">Кубышка v.1.1</a></h2>
         </td>
         <td>{% block header01 %}{% endblock %}</td>
-        <td>
+        <td><h3>
             <table border="1" cellspacing="6" cellpadding="6" style="font: 12pt; vertical-align: top;">
                 <tbody>
                 <tr>
-                    <td><a style="padding-left: 10px; padding-right: 10px;" href="/journ">Журнал</a></td>
-                    <td><a style="padding-left: 10px; padding-right: 10px;" href="/main">Расписание</a></td>
+                    <td><a style="padding-left: 10px; padding-right: 10px;" href="/journ">Журналы посещений</a></td>
+                    <td><a style="padding-left: 10px; padding-right: 10px;" href="/main">Расписание занятий</a></td>
                     <td><a style="padding-left: 10px; padding-right: 10px;" href="/stat">Статистика</a></td>
                 </tr>
                 </tbody>
-            </table>
+            </table></h3>
         </td>
         <td>{% block header02 %}{% endblock %}</td>
-        <td>{% block header03 %}{% endblock %}</td>
+        <td>{% block header03 %}
+            {% if session.year %}
+            Учебный год: {{session.year}}/{{session.year +  1}}
+            {% endif%}
+            {% endblock %}</td>
         <td>{% block header04 %}{% endblock %}</td>
         <td>{% block header05 %}{% endblock %}</td>
         <td>{% block header06 %}{% endblock %}</td>
@@ -31,7 +35,7 @@
 <table style="width: 1900px;" border="0" cellspacing="0" cellpadding="10">
     <tbody>
     <tr>
-        <td style="vertical-align: top; width: 400px;">{% block left_column %}{% endblock %}</td>
+        <td style="vertical-align: top; width: 300px;">{% block left_column %}{% endblock %}</td>
         <td style="vertical-align: top;">
             <div style="height: 650px; overflow-y: scroll;">{% block content %}{% endblock %}</div>
         </td>
