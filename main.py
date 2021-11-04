@@ -16,7 +16,7 @@ from data.db_class_priv import Priv
 from data.db_class_rasp import Rasp
 from data.db_class_roles import Roles
 from data.db_class_users import Users
-from data.misc import MyDict
+from data.misc import MyDict, date_us_ru
 from forms.f_journ import JournFilterForm
 from forms.f_rasp import RaspFilterForm
 from forms.f_user import LoginForm, RegisterForm
@@ -62,7 +62,7 @@ def jorn_view():
     journ = []
     for rec in fjourn:
         new = MyDict()
-        new = MyDict(id=rec.id, date=rec.date, tstart=rec.tstart, tend=rec.tend,
+        new = MyDict(id=rec.id, date=date_us_ru(rec.date), tstart=rec.tstart, tend=rec.tend,
                      counter=0 if not rec.present else len(rec.present.split()),
                      name='' if not rec.name else rec.name.strip(),
                      comment='' if not rec.comment else rec.comment.strip(),
@@ -97,7 +97,7 @@ def free_view():
 
 @app.route('/', methods=['GET', 'POST'])
 def base():
-    return render_template("base.html")
+    return render_template("empty.html")
 
 
 @app.route('/login', methods=['GET', 'POST'])
@@ -173,7 +173,7 @@ def logout():
 
 @app.route('/base')
 def base_view():
-    return render_template('base.html')
+    return render_template('empty.html')
 
 
 @app.route("/rasp")

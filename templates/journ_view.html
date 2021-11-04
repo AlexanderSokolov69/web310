@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 
-{% block left_column %}<h2>Журнал посещений</h2>
-<hr>
+{% block header00 %}<h2>Журнал посещений</h2>{% endblock %}
+{% block left_column %}
 <form action="" method="post">
     {{ form.csrf_token() }}
     {{ form.hidden_tag() }}
@@ -39,7 +39,7 @@
 <div class="col-md6 border rounded">
     <table style="padding-left: 10px; padding-right: 10px;" border="1" cellspacing="1" cellpadding="4">
         <tbody>
-        <tr style="background-color: rgb(52, 73, 94); color: #ffffff">
+        <tr style="background-color: rgb(52, 73, 94); color: #ffffff;">
             <th scope="col">Дата</th>
             <th scope="col">Начало</th>
             <th scope="col">Окончание</th>

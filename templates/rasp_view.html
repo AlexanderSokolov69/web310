@@ -1,7 +1,11 @@
 {% extends "base.html" %}
 
-{% block left_column %}<h2>Расписание занятий</h2>
-<hr>
+{% block header00 %}
+<h2>Расписание занятий</h2>
+{% endblock %}
+
+
+{% block left_column %}
 <form action="" method="post">
     {{ form.csrf_token() }}
     {{ form.hidden_tag() }}
