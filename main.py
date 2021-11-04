@@ -125,7 +125,7 @@ def index():
     rsp = db_sess.query(Rasp).join(Groups).join(Users).order_by(Rasp.idDays, Rasp.tstart, Rasp.idKabs)
     form = RaspFilterForm()
     dat = rsp
-    print(*session)
+
     if form.validate_on_submit():
         #    if request.method == 'POST':
         if form.f_users.data != 0:
