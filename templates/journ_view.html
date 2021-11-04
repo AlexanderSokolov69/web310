@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+
+{% block left_column %}<h2>Журнал посещений</h2>
+<hr>
+<form action="" method="post">
+    {{ form.csrf_token() }}
+    {{ form.hidden_tag() }}
+    <table border="0" cellpadding="4" cellspacing="2" style="padding-left: 10px; padding-right: 10px">
+        <tbody>{% for field in form if field.name != "csrf_token" %}
+        <tr>
+                <td align="left">{{ field.label }}</td>
+                <td align="right">{{ field }}</td>
+        </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+    <hr>
+    <p>Найдено записей: {{ spis.count() }}</p>
+    <div style=" height: 500px; overflow-y: scroll;">
+    <table border="1" cellpadding="6" cellspacing="2">
+        <tbody>
+        {% for rsp in spis %}
+        <tr>
+                <td align="left">{{ rsp.days.name }}</td>
+                <td align="center" style="background-color: rgb{{rsp.kabs.color}}">{{ rsp.kabs.name }}</td>
+                <td align="center">{{ rsp.tstart }}</td>
+                <td align="center">{{ rsp.tend }}</td>
+                <td align="left">{{rsp.groups.name}}  {{rsp.groups.comment}}</td>
+        </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+    </div>
+
+</form>
+{% endblock %}
+
+{% block content %}
+<div class="col-md6 border rounded">
+    <table style="padding-left: 10px; padding-right: 10px;" border="1" cellspacing="1" cellpadding="4">
+        <tbody>
+        <tr style="background-color: rgb(52, 73, 94); color: #ffffff">
+            <th scope="col">Дата</th>
+            <th scope="col">Начало</th>
+            <th scope="col">Окончание</th>
+            <th scope="col">Посещаемость</th>
+            <th scope="col">Группа</th>
+            <th scope="col">Тема занятия</th>
+            <th scope="col">Доп.комментарий</th>
+        </tr>
+        {% for item in journ%}
+        <tr>
+            <td align="center">{{item['date']}}</td>
+            <td align="center">{{item.tstart}}</td>
+            <td align="center">{{item.tend}}</td>
+            <td align="center">{{item.counter}}</td>
+            <td align="center">
+                {{item.gruppa}}</td>
+            <td align="left">
+                {{item.name}}</td>
+            <td align="left">
+                {{item.comment}}</td>
+        </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

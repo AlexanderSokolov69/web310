@@ -23,7 +23,7 @@
 <div class="col-md6 border rounded">
     <table style="padding-left: 10px; padding-right: 10px;" border="1" cellspacing="1" cellpadding="4">
         <tbody>
-        <tr>
+        <tr style="background-color: rgb(52, 73, 94); color: #ffffff">
             <th scope="col">День недели</th>
             <th scope="col">Начало</th>
             <th scope="col">Окончание</th>
@@ -33,7 +33,7 @@
             <th scope="col">Наименование учебного курса</th>
         </tr>
         {% for item in items%}
-        <tr {% if item.idDays % 2> 0 %} style="background-color: #ffeecc;" {% endif %}">
+        <tr {% if item.idDays % 2> 0 %} style="background-color: rgb(254, 255, 236);" {% endif %}">
             <td align="center">{{item.days.name}}</td>
             <td align="center">{{item.tstart}}</td>
             <td align="center">{{item.tend}}</td>
