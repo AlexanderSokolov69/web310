@@ -23,9 +23,12 @@ from forms.f_journ import JournFilterForm
 from forms.f_list_journ import ListFilterForm
 from forms.f_rasp import RaspFilterForm
 from forms.f_user import LoginForm, RegisterForm
+from flask_bootstrap import Bootstrap
+
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'yandexlyceum_secret_key'
+Bootstrap(app)
 login_manager = LoginManager()
 login_manager.init_app(app)
 
@@ -70,7 +73,6 @@ def jorn_edit(id_rec):
     current = sess.query(Journals).get(id_rec)
     form = ListFilterForm(current)
     for rec in form.fs_spisok:
-
         print(rec)
     if form.validate_on_submit():
         return redirect("/journ")

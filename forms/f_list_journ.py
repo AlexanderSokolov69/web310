@@ -20,14 +20,15 @@ from data.db_class_rasp import Rasp
 from data.db_class_users import Users
 from data.misc import date_us_ru, MyDict
 
-UserItem = namedtuple('UserItem', ['item_id', 'fio', 'present', 'name'])
+UserItem = namedtuple('UserItem', ['item_id', 'fio', 'present', 'b', 'c', 'name'])
 
 
 class UsersList(FlaskForm):
     item_id = IntegerField()
-    fio = StringField(u'Фамилия И.О.')
+    fio = StringField()
     present = BooleanField()
-    # shtraf = StringField(u'Штраф')
+    b = StringField()
+    c = StringField()
 
     def __repr__(self):
         ret = super(UsersList, self).__repr__()
@@ -42,7 +43,8 @@ class UserListForm(Form):
         for item_form in self.items:
             for item in kwargs['data']['items']:
                 if item.item_id == item_form.data['item_id']:
-                    item_form.label =''
+                    item_form.present.label =''
+                    # item_form['shtraf'].label = 'sht'
 #                    item_form.label = item.item_id
 
 
@@ -70,7 +72,7 @@ class ListFilterForm(FlaskForm):
 
         users_list = []
         for user in spis:
-            users_list.append(UserItem(user.id, user.name, user.id in pres, user.name))
+            users_list.append(UserItem(user.id, user.name, user.id in pres, '', '', user.name))
         data = MyDict()
         data['items'] = users_list
 #        print(data)

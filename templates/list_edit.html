@@ -1,14 +1,15 @@
 {% extends "base.html" %}
+{% import "bootstrap/wtf.html" as wtf %}
 
 {% block header00 %}<h2>Журнал посещений</h2>{% endblock %}
 {% block left_column %}
-<form action="" method="post">
+<form action="" method="post" style="font: 12pt">
     {{ form.csrf_token() }}
     {{ form.hidden_tag() }}
     <table border="0" cellpadding="4" cellspacing="2" style="padding-left: 10px; padding-right: 10px">
         <tbody>{% for field in form if (field.name != "csrf_token") and ('fh_' in field.name) %}
         <tr>
-                <td align="left">{{ field.label }}</td>
+                <td align="left" width="20%">{{ field.label }}</td>
                 <td align="right">{{ field }}</td>
         </tr>
         {% endfor %}
@@ -24,13 +25,16 @@
             <th scope="col">ID</th>
             <th scope="col">Фамилия И.О.</th>
             <th scope="col">Посещ.</th>
+            <th scope="col">Рейтинг</th>
+            <th scope="col">Комментарии</th>
         </tr>
-        {% for field in form.fs_spisok if (field.name != "csrf_token") %}
+        {% for field in form.fs_spisok.items if (field.name != "csrf_token") %}
         <tr>
                 <td align="left">{{ field.data['item_id'] }}</td>
                 <td align="left">{{ field.data['fio'] }}</td>
-                <td align="left">{{ field['present'] }}</td>
-                <td align="left">{{ field }}</td>
+                <td align="center">{{ wtf.form_field(field.present) }}</td>
+                <td align="center">{{ wtf.form_field(field.b) }}</td>
+                <td align="center">{{ wtf.form_field(field.c) }}</td>
 
 
         </tr>
