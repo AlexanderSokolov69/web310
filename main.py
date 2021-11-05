@@ -72,8 +72,8 @@ def jorn_edit(id_rec):
     sess = db_session.create_session()
     current = sess.query(Journals).get(id_rec)
     form = ListFilterForm(current)
-    for rec in form.fs_spisok:
-        print(rec)
+#    for rec in form.fs_spisok:
+#        print(rec)
     if form.validate_on_submit():
         return redirect("/journ")
     return render_template("list_edit.html", form=form)

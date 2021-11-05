@@ -66,7 +66,7 @@ class ListFilterForm(FlaskForm):
         self.fh_tend.data = current.tend
         self.fh_comment.data = current.comment
         db_sess = db_session.create_session()
-        pres = [int(id) for id in current.present.split()]
+        pres = [] if not current.present else [int(id) for id in current.present.split()]
         spis = db_sess.query(Users).join(GroupTable, GroupTable.idUsers == Users.id).\
                filter(current.idGroups == GroupTable.idGroups).order_by(Users.name).all()
 
