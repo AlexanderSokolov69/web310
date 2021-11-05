@@ -40,17 +40,21 @@
     <table style="padding-left: 10px; padding-right: 10px;" border="1" cellspacing="1" cellpadding="4">
         <tbody>
         <tr style="background-color: rgb(52, 73, 94); color: #ffffff;">
+            <th scope="col">Режим</th>
             <th scope="col">Дата</th>
             <th scope="col">Начало</th>
             <th scope="col">Окончание</th>
-            <th scope="col">Посещаемость</th>
+            <th scope="col">Кол-во</th>
             <th scope="col">Группа</th>
             <th scope="col">Тема занятия</th>
             <th scope="col">Доп.комментарий</th>
         </tr>
         {% for item in journ%}
         <tr>
-            <td align="center">{{item['date']}}</td>
+            <td width="80px" align="center"><a style="color: blue;" href="/journ/add/{{item.id}}">[+]</a>
+                <a style="color: green;" href="/journ/edit/{{item.id}}">[V]</a>
+                <a style="color: red;" href="/journ/delete/{{item.id}}">[X]</a></td>
+            <td width="80px" align="center">{{item['date']}}</td>
             <td align="center">{{item.tstart}}</td>
             <td align="center">{{item.tend}}</td>
             <td align="center">{{item.counter}}</td>

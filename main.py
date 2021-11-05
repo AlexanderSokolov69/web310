@@ -18,6 +18,7 @@ from data.db_class_roles import Roles
 from data.db_class_users import Users
 from data.misc import MyDict, date_us_ru
 from forms.f_journ import JournFilterForm
+from forms.f_list_journ import ListFilterForm
 from forms.f_rasp import RaspFilterForm
 from forms.f_user import LoginForm, RegisterForm
 
@@ -30,6 +31,7 @@ login_manager.init_app(app)
 @app.errorhandler(404)
 @app.errorhandler(401)
 def not_found(error):
+    msg = 'Ошибка'
     if "401" in str(error):
         msg = 'Пользователь не авторизован (401)'
     elif "404" in str(error):
@@ -42,6 +44,44 @@ def load_user(user_id):
     db_sess = db_session.create_session()
     return db_sess.query(Users).get(user_id)
 
+
+@app.route('/journ/add/<int:id_rec>', methods=['GET'])
+@login_required
+def jorn_add(id_rec):
+    sess = db_session.create_session()
+    curr = sess.query(Journals).get(id_rec)
+    journ = Journals()
+    journ.date = curr.date
+    journ.idGroups = curr.idGroups
+    journ.tstart = curr.tstart
+    journ.tend = curr.tend
+    journ.name = curr.name
+    sess.add(journ)
+    sess.commit()
+    return redirect("/journ")
+
+
+@app.route('/journ/edit/<int:id_rec>', methods=['POST', 'GET'])
+@login_required
+def jorn_edit(id_rec):
+    sess = db_session.create_session()
+    list = sess.query(Journals).get(id_rec)
+    form = ListFilterForm(list)
+
+    if form.validate_on_submit():
+        return redirect("/journ")
+    return render_template("list_edit.html", form=form)
+
+
+@app.route('/journ/delete/<int:id_rec>', methods=['GET'])
+@login_required
+def jorn_delete(id_rec):
+    sess = db_session.create_session()
+    journ = sess.query(Journals).get(id_rec)
+    if not(journ.name and len(journ.name.strip()) > 8):
+        sess.delete(journ)
+        sess.commit()
+    return redirect("/journ")
 
 
 @app.route('/journ', methods=['GET', 'POST'])

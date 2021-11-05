@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+
+{% block header00 %}<h2>Журнал посещений</h2>{% endblock %}
+{% block left_column %}
+<form action="" method="post">
+    {{ form.csrf_token() }}
+    {{ form.hidden_tag() }}
+    <table border="0" cellpadding="4" cellspacing="2" style="padding-left: 10px; padding-right: 10px">
+        <tbody>{% for field in form if (field.name != "csrf_token") and ('fh_' in field.name) %}
+        <tr>
+                <td align="left">{{ field.label }}</td>
+                <td align="right">{{ field }}</td>
+        </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+
+
+{% endblock %}
+
+{% block content %}
+<div class="col-md6 border rounded">
+    <table style="padding-left: 10px; padding-right: 10px;" border="1" cellspacing="1" cellpadding="4">
+        <tbody>
+        <tr style="background-color: rgb(52, 73, 94); color: #ffffff;">
+            <th scope="col">ID</th>
+            <th scope="col">Фамилия И.О.</th>
+            <th scope="col">Посещ.</th>
+        </tr>
+        {% for field in form.fs_spisok %}
+        <tr>
+                <td align="left">{{ field.id }}</td>
+                <td align="left">{{ field.name }}</td>
+                <td align="left">{{ field.present }}</td>
+                <td align="left">{{ field.shtraf }}</td>
+        </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</div>
+    </form>
+{% endblock %}
