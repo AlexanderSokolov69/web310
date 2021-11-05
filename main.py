@@ -2,8 +2,10 @@ import pyodbc
 import datetime
 from flask import Flask, render_template, request, make_response, session, jsonify
 from flask_login import LoginManager, login_user, logout_user, login_required, current_user
+from flask_wtf import FlaskForm
 from sqlalchemy import extract
 from werkzeug.utils import redirect
+from wtforms import SubmitField, BooleanField, IntegerField
 
 from data import db_session
 from data.cl_const import Const
@@ -65,9 +67,11 @@ def jorn_add(id_rec):
 @login_required
 def jorn_edit(id_rec):
     sess = db_session.create_session()
-    list = sess.query(Journals).get(id_rec)
-    form = ListFilterForm(list)
+    current = sess.query(Journals).get(id_rec)
+    form = ListFilterForm(current)
+    for rec in form.fs_spisok:
 
+        print(rec)
     if form.validate_on_submit():
         return redirect("/journ")
     return render_template("list_edit.html", form=form)

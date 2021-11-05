@@ -14,9 +14,7 @@
         {% endfor %}
         </tbody>
     </table>
-
-
-{% endblock %}
+    {% endblock %}
 
 {% block content %}
 <div class="col-md6 border rounded">
@@ -27,12 +25,14 @@
             <th scope="col">Фамилия И.О.</th>
             <th scope="col">Посещ.</th>
         </tr>
-        {% for field in form.fs_spisok %}
+        {% for field in form.fs_spisok if (field.name != "csrf_token") %}
         <tr>
-                <td align="left">{{ field.id }}</td>
-                <td align="left">{{ field.name }}</td>
-                <td align="left">{{ field.present }}</td>
-                <td align="left">{{ field.shtraf }}</td>
+                <td align="left">{{ field.data['item_id'] }}</td>
+                <td align="left">{{ field.data['fio'] }}</td>
+                <td align="left">{{ field['present'] }}</td>
+                <td align="left">{{ field }}</td>
+
+
         </tr>
         {% endfor %}
         </tbody>
