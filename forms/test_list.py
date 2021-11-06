@@ -54,10 +54,10 @@ class ListFilterForm(FlaskForm):
         self.fh_tstart.data = current.tstart
         self.fh_tend.data = current.tend
         self.fh_comment.data = current.comment
-        db_sess = db_session.create_session()
         pres = [int(id) for id in current.present.split()]
-        spis = db_sess.query(Users).join(GroupTable, GroupTable.idUsers == Users.id).\
-               filter(current.idGroups == GroupTable.idGroups).order_by(Users.name)
+        with db_session.create_session() as db_sess:
+            spis = db_sess.query(Users).join(GroupTable, GroupTable.idUsers == Users.id).\
+                   filter(current.idGroups == GroupTable.idGroups).order_by(Users.name)
 
         for item_form in self.fs_spisok:
             for item in kwargs['data']['items']:

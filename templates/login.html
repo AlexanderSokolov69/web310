@@ -7,8 +7,8 @@
     <form action="" method="post">
         {{ form.hidden_tag() }}
         <p>
-            {{ form.login.label }}<br>
-            {{ form.login(class="form-control", type="login") }}<br>
+            {{ form.login.label(class="area") }}<br>
+            {{ form.login(class="list_fields", type="login") }}<br>
             {% for error in form.login.errors %}
                 <div class="alert alert-danger" role="alert">
                     {{ error }}
@@ -16,8 +16,8 @@
             {% endfor %}
         </p>
         <p>
-            {{ form.password.label }}<br>
-            {{ form.password(class="form-control", type="password") }}<br>
+            {{ form.password.label(class="area") }}<br>
+            {{ form.password(class="list_fields", type="password") }}<br>
             {% for error in form.password.errors %}
                 <div class="alert alert-danger" role="alert">
                     {{ error }}
@@ -25,7 +25,7 @@
             {% endfor %}
         </p>
         <p>{{ form.remember_me() }} {{ form.remember_me.label }}</p>
-        <p>{{ form.submit(type="submit", class="btn btn-primary") }}</p>
+        <p>{{ form.submit(type="submit", class="butts") }}</p>
         <div>{{ message }}</div>
     </form>
 {% endblock %}

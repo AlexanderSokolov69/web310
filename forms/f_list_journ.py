@@ -46,6 +46,7 @@ class UserListForm(FlaskForm):
 
 
 class ListFilterForm(FlaskForm):
+    hide_id = HiddenField()
     fh_theme = TextAreaField(u'Тема занятия')
     fh_date = StringField(u'Дата')
     fh_tstart = StringField(u'Начало')
@@ -58,6 +59,7 @@ class ListFilterForm(FlaskForm):
 
     def __init__(self, current):
         super(ListFilterForm, self).__init__()
+        self.hide_id = current.id
         self.fh_theme.data = '' if not current.name else current.name.strip()
         self.fh_date.data = date_us_ru(current.date)
         self.fh_tstart.data = current.tstart
@@ -68,9 +70,9 @@ class ListFilterForm(FlaskForm):
         shtraf = spis_to_dic(current.shtraf)
         comment = spis_to_dic(current.usercomm)
 
-        db_sess = db_session.create_session()
-        spis = db_sess.query(Users).join(GroupTable, GroupTable.idUsers == Users.id).\
-               filter(current.idGroups == GroupTable.idGroups).order_by(Users.name).all()
+        with db_session.create_session() as db_sess:
+            spis = db_sess.query(Users).join(GroupTable, GroupTable.idUsers == Users.id).\
+                   filter(current.idGroups == GroupTable.idGroups).order_by(Users.name).all()
 
         users_list = []
         for user in spis:
@@ -79,6 +81,7 @@ class ListFilterForm(FlaskForm):
         data = MyDict()
         data['items'] = users_list
         self.fs_spisok = UserListForm(data=data)
+
 
 
 

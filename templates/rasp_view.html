@@ -7,11 +7,15 @@
 <form action="" method="post">
     {{ form.csrf_token() }}
     {{ form.hidden_tag() }}
-    <table border="0" cellpadding="4" cellspacing="2" style="padding-left: 10px; padding-right: 10px">
-        <tbody>{% for field in form if field.name != "csrf_token" %}
+    <table border="0" cellpadding="4" cellspacing="2" width="100%">
+    <td width="100%" align="right">{{form.submit(class="butts")}}</td>
+    </table>
+    <hr>
+    <table border="0" cellpadding="4" cellspacing="2">
+        <tbody>{% for field in form if 'fr_' in field.name %}
         <tr>
-                <td align="left">{{ field.label }}</td>
-                <td align="right">{{ field }}</td>
+                <td align="left">{{ field.label(class="area") }}</td>
+                <td align="right">{{ field(class="list_fields") }}</td>
         </tr>
         {% endfor %}
         </tbody>
@@ -23,7 +27,7 @@
 
 {% block content %}
 <div class="col-md6 border rounded">
-    <table style="padding-left: 10px; padding-right: 10px;" border="1" cellspacing="1" cellpadding="4">
+    <table border="1" cellspacing="1" cellpadding="4">
         <tbody>
         <tr style="background-color: rgb(52, 73, 94); color: #ffffff">
             <th scope="col">День недели</th>

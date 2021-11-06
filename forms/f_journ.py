@@ -16,26 +16,25 @@ from data.db_class_users import Users
 
 
 class JournFilterForm(FlaskForm):
-    f_groups = SelectField(u'Учебная группа', coerce=int)
-    f_month = SelectField(u'Месяц', coerce=int)
+    ff_groups = SelectField(u'Учебная группа', coerce=int)
+    ff_month = SelectField(u'Месяц', coerce=int)
     submit = SubmitField('Применить фильтр')
 
     def __init__(self, *args, **kwargs):
         super(JournFilterForm, self).__init__(*args, **kwargs)
-        db_sess = db_session.create_session()
-        # journ = db_sess.query(Journals).join(Groups).join(Users).filter(Users.id == current_user.id).\
-        #     order_by(Journals.date, Journals.tstart).all()
-        # Groups
-        group = db_sess.query(Groups).join(Courses).\
-            filter(Groups.idUsers == current_user.id, Courses.year == Const.YEAR).order_by(Groups.name)
-        self.f_groups.choices = [(g.id, u"%s" % f'{g.name}') for g in group]
-        self.f_groups.choices.insert(0, (0, u"Не выбрана"))
-        self.f_groups.default = session.get('f_groups', 0)
-        # Месяц
-        month = db_sess.query(Monts).order_by(Monts.id).all()
-        self.f_month.choices = [(g.num, u"%s" % f'{g.name}') for g in month]
-        self.f_month.choices.insert(0, (0, u"Не выбран"))
-        self.f_month.default = session.get('f_month', 0)
-        # Расписание занятий
-        self.rasp = db_sess.query(Rasp).join(Groups).join(Days).join(Kabs). \
-            filter(Groups.idUsers == current_user.id).order_by(Groups.name, Rasp.idDays)
+        with db_session.create_session() as db_sess:
+            # Groups
+            group = db_sess.query(Groups).join(Courses).\
+                filter(Groups.idUsers == current_user.id, Courses.year == Const.YEAR).order_by(Groups.name)
+            self.ff_groups.choices = [(g.id, u"%s" % f'{g.name}') for g in group]
+            self.ff_groups.choices.insert(0, (0, u"Не выбрана"))
+            self.ff_groups.default = session.get('ff_groups', 0)
+            # Месяц
+            month = db_sess.query(Monts).order_by(Monts.id).all()
+            self.ff_month.choices = [(g.num, u"%s" % f'{g.name}') for g in month]
+            self.ff_month.choices.insert(0, (0, u"Не выбран"))
+            self.ff_month.default = session.get('ff_month', 0)
+            # Расписание занятий
+            self.rasp = db_sess.query(Rasp).join(Groups).join(Days).join(Kabs). \
+                filter(Groups.idUsers == current_user.id).order_by(Groups.name, Rasp.idDays)
+

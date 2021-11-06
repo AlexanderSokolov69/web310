@@ -15,11 +15,11 @@
     </table>
 
     <hr>
-    <table border="0" cellpadding="4" cellspacing="0" class="area">
+    <table border="0" cellpadding="4" cellspacing="0" class="area" width="80%">
         <tbody>{% for field in form if ('fh_' in field.name) %}
         <tr>
             <td align="left" width="20%">{{ field.label(class="area") }}</td>
-            <td align="right">{{ field(class="area", cols="50", rows="2", size=10) }}</td>
+            <td align="right">{{ field(class="area", cols="50", rows="3", size=10) }}</td>
         </tr>
         {% endfor %}
         </tbody>
@@ -27,33 +27,34 @@
     <hr>
     {{ form.csrf_token() }}
     {{ form.hidden_tag() }}
+
+
+    {% endblock %}
+
+    {% block content %}
+    <div class="col-md6 border rounded">
+        <table border="1" cellspacing="1" cellpadding="4">
+            <tbody>
+            <tr style="background-color: rgb(52, 73, 94); color: #ffffff;">
+                <th scope="col">№пп</th>
+                <th scope="col">Кубист</th>
+                <th scope="col">Посещ.</th>
+                <th scope="col">Оценка</th>
+                <th scope="col">Рейтинг</th>
+                <th scope="col">Комментарии</th>
+            </tr>
+            {% for field in form.fs_spisok.items if (field.name != "csrf_token") %}
+            <tr class="list_fields">
+                <td align="center">{{ loop.index }}</td>
+                <td align="left">{{ field.data.fio }}</td>
+                <td align="center">{{ field.present(class="list_check") }}</td>
+                <td align="center">{{ field.estim(size=5, class="list_fields") }}</td>
+                <td align="center">{{ field.shtraf(size=10, class="list_fields") }}</td>
+                <td align="left">{{ field.comment(size=40, class="list_fields") }}</td>
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
 </form>
-
-{% endblock %}
-
-{% block content %}
-<div class="col-md6 border rounded">
-    <table border="1" cellspacing="1" cellpadding="4">
-        <tbody>
-        <tr style="background-color: rgb(52, 73, 94); color: #ffffff;">
-            <th scope="col">№пп</th>
-            <th scope="col">Кубист</th>
-            <th scope="col">Посещ.</th>
-            <th scope="col">Оценка</th>
-            <th scope="col">Рейтинг</th>
-            <th scope="col">Комментарии</th>
-        </tr>
-        {% for field in form.fs_spisok.items if (field.name != "csrf_token") %}
-        <tr class="list_fields">
-            <td align="center">{{ loop.index }}</td>
-            <td align="left">{{ field.data.fio }}</td>
-            <td align="center">{{ field.present(class="list_check") }}</td>
-            <td align="center">{{ field.estim(size=5, class="list_fields") }}</td>
-            <td align="center">{{ field.shtraf(size=10, class="list_fields") }}</td>
-            <td align="left">{{ field.comment(size=40, class="list_fields") }}</td>
-        </tr>
-        {% endfor %}
-        </tbody>
-    </table>
-</div>
 {% endblock %}

@@ -18,19 +18,23 @@ from data.db_class_priv import Priv
 from data.db_class_rasp import Rasp
 from data.db_class_roles import Roles
 from data.db_class_users import Users
-from data.misc import MyDict, date_us_ru
+from data.misc import MyDict, date_us_ru, date_ru_us
 from forms.f_journ import JournFilterForm
 from forms.f_list_journ import ListFilterForm
 from forms.f_rasp import RaspFilterForm
 from forms.f_user import LoginForm, RegisterForm
-# from flask_bootstrap import Bootstrap
 
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'yandexlyceum_secret_key'
-# Bootstrap(app)
 login_manager = LoginManager()
 login_manager.init_app(app)
+
+
+@app.teardown_appcontext
+def shutdown_session(exception=None):
+    print(exception)
+#    db_session.orm.close_all_sessions()
 
 
 @app.errorhandler(404)
@@ -46,35 +50,68 @@ def not_found(error):
 
 @login_manager.user_loader
 def load_user(user_id):
-    db_sess = db_session.create_session()
-    return db_sess.query(Users).get(user_id)
+    with db_session.create_session() as db_sess:
+        ret = db_sess.query(Users).get(user_id)
+    return ret
 
 
 @app.route('/journ/add/<int:id_rec>', methods=['GET'])
 @login_required
 def jorn_add(id_rec):
-    sess = db_session.create_session()
-    curr = sess.query(Journals).get(id_rec)
-    journ = Journals()
-    journ.date = curr.date
-    journ.idGroups = curr.idGroups
-    journ.tstart = curr.tstart
-    journ.tend = curr.tend
-    journ.name = curr.name
-    sess.add(journ)
-    sess.commit()
+    with db_session.create_session() as db_sess:
+        curr = db_sess.query(Journals).get(id_rec)
+        journ = Journals()
+        journ.date = curr.date
+        journ.idGroups = curr.idGroups
+        journ.tstart = curr.tstart
+        journ.tend = curr.tend
+        journ.name = curr.name
+        db_sess.add(journ)
+        db_sess.commit()
     return redirect("/journ")
 
 
 @app.route('/journ/edit/<int:id_rec>', methods=['POST', 'GET'])
 @login_required
 def jorn_edit(id_rec):
-    sess = db_session.create_session()
-    current = sess.query(Journals).get(id_rec)
+    with db_session.create_session() as db_sess:
+        current = db_sess.query(Journals).get(id_rec)
     form = ListFilterForm(current)
 #    for rec in form.fs_spisok:
 #        print(rec)
     if form.validate_on_submit():
+        if form.sb_submit.data:
+            present = []
+            estim = []
+            shtraf = []
+            usercomm = []
+            for rec in form.fs_spisok.data['items']:
+                if rec['present']:
+                    present.append(str(rec['item_id']))
+                if rec['estim']:
+                    estim.append(f"{rec['item_id']}={rec['estim'].strip()}")
+                if rec['shtraf']:
+                    shtraf.append(f"{rec['item_id']}={rec['shtraf'].strip()}")
+                if rec['comment']:
+                    usercomm.append(f"{rec['item_id']}={rec['comment'].strip()}")
+            print(form.hide_id, form.fh_theme.data.strip(), date_ru_us(form.fh_date.data), form.fh_tstart.data,
+                  form.fh_tend.data, form.fh_comment.data.strip())
+            print(present, estim, shtraf, usercomm)
+            with db_session.create_session() as db_sess:
+                current = db_sess.query(Journals).get(form.hide_id)
+                if current:
+                    current.date = date_ru_us(form.fh_date.raw_data[0])
+                    current.tstart = form.fh_tstart.raw_data[0]
+                    current.tend = form.fh_tend.raw_data[0]
+                    current.name = form.fh_theme.raw_data[0].strip()
+                    current.present = ' '.join(present)
+                    current.estim = ' '.join(estim)
+                    current.shtraf = ' '.join(shtraf)
+                    current.usercomm = ' '.join(usercomm)
+                    current.comment = form.fh_comment.raw_data[0].strip()
+                    db_sess.commit()
+        else:
+            print('Cancel')
         return redirect("/journ")
     return render_template("list_edit.html", form=form)
 
@@ -82,29 +119,29 @@ def jorn_edit(id_rec):
 @app.route('/journ/delete/<int:id_rec>', methods=['GET'])
 @login_required
 def jorn_delete(id_rec):
-    sess = db_session.create_session()
-    journ = sess.query(Journals).get(id_rec)
-    if not(journ.name and len(journ.name.strip()) > 8):
-        sess.delete(journ)
-        sess.commit()
+    with db_session.create_session() as db_sess:
+        journ = db_sess.query(Journals).get(id_rec)
+        if not(journ.name and len(journ.name.strip()) > 8):
+            db_sess.delete(journ)
+            db_sess.commit()
     return redirect("/journ")
 
 
 @app.route('/journ', methods=['GET', 'POST'])
 @login_required
 def jorn_view():
-    db_sess = db_session.create_session()
     form = JournFilterForm()
     dat = form.rasp
-    fjourn = db_sess.query(Journals).join(Groups).join(Courses).\
-        filter(Groups.idUsers == current_user.id, Courses.year == Const.YEAR).\
-        order_by(Journals.date, Journals.tstart)
+    with db_session.create_session() as db_sess:
+        fjourn = db_sess.query(Journals).join(Groups).join(Courses).\
+            filter(Groups.idUsers == current_user.id, Courses.year == Const.YEAR).\
+            order_by(Journals.date, Journals.tstart)
     if form.validate_on_submit():
-        if form.f_groups.data != 0:
-            dat = dat.filter(Groups.id == form.f_groups.data)
-            fjourn = fjourn.filter(Groups.id == form.f_groups.data)
-        if form.f_month.data != 0:
-            fjourn = fjourn.filter(extract('month', Journals.date) == form.f_month.data)
+        if form.ff_groups.data != 0:
+            dat = dat.filter(Groups.id == form.ff_groups.data)
+            fjourn = fjourn.filter(Groups.id == form.ff_groups.data)
+        if form.ff_month.data != 0:
+            fjourn = fjourn.filter(extract('month', Journals.date) == form.ff_month.data)
     journ = []
     for rec in fjourn:
         new = MyDict()
@@ -115,28 +152,26 @@ def jorn_view():
                      gruppa=f"{'' if not rec.groups.name else rec.groups.name.strip()} "
                             f"{'' if not rec.groups.comment else rec.groups.comment.strip()}")
         journ.append(new)
-
-
     return render_template("journ_view.html", form=form, spis=dat, journ=journ)
 
 
 @app.route('/rasp', methods=['GET', 'POST'])
 @login_required
 def free_view():
-    db_sess = db_session.create_session()
-    rsp = db_sess.query(Rasp).join(Groups).join(Users).order_by(Rasp.idDays, Rasp.tstart, Rasp.idKabs)
+    with db_session.create_session() as db_sess:
+        rsp = db_sess.query(Rasp).join(Groups).join(Users).order_by(Rasp.idDays, Rasp.tstart, Rasp.idKabs)
     form = RaspFilterForm()
     dat = rsp
     if form.validate_on_submit():
         #    if request.method == 'POST':
-        if form.f_users.data != 0:
-            dat = dat.filter(Groups.idUsers == form.f_users.data)
-        if form.f_weekday.data != 0:
-            dat = dat.filter(Rasp.idDays == form.f_weekday.data)
-        if form.f_kabinet.data != 0:
-            dat = dat.filter(Rasp.idKabs == form.f_kabinet.data)
-        if form.f_course.data != 0:
-            dat = dat.filter(Groups.idCourses == form.f_course.data)
+        if form.fr_users.data != 0:
+            dat = dat.filter(Groups.idUsers == form.fr_users.data)
+        if form.fr_weekday.data != 0:
+            dat = dat.filter(Rasp.idDays == form.fr_weekday.data)
+        if form.fr_kabinet.data != 0:
+            dat = dat.filter(Rasp.idKabs == form.fr_kabinet.data)
+        if form.fr_course.data != 0:
+            dat = dat.filter(Groups.idCourses == form.fr_course.data)
     cnt = dat.count()
     return render_template("rasp_view_free.html", items=dat, form=form, cnt=cnt)
 
@@ -150,8 +185,8 @@ def base():
 def login():
     form = LoginForm()
     if form.validate_on_submit():
-        db_sess = db_session.create_session()
-        user = db_sess.query(Users).join(Roles).join(Priv).filter(Users.login == form.login.data).first()
+        with db_session.create_session() as db_sess:
+            user = db_sess.query(Users).join(Roles).join(Priv).filter(Users.login == form.login.data).first()
         if user and user.check_password(form.password.data):
             login_user(user, remember=form.remember_me.data)
             session.current_user = user
@@ -167,21 +202,21 @@ def login():
 @login_required
 def index():
     #    if request.method == 'GET':
-    db_sess = db_session.create_session()
-    rsp = db_sess.query(Rasp).join(Groups).join(Users).order_by(Rasp.idDays, Rasp.tstart, Rasp.idKabs)
+    with db_session.create_session() as db_sess:
+        rsp = db_sess.query(Rasp).join(Groups).join(Users).order_by(Rasp.idDays, Rasp.tstart, Rasp.idKabs)
     form = RaspFilterForm()
     dat = rsp
 
     if form.validate_on_submit():
         #    if request.method == 'POST':
-        if form.f_users.data != 0:
-            dat = dat.filter(Groups.idUsers == form.f_users.data)
-        if form.f_weekday.data != 0:
-            dat = dat.filter(Rasp.idDays == form.f_weekday.data)
-        if form.f_kabinet.data != 0:
-            dat = dat.filter(Rasp.idKabs == form.f_kabinet.data)
-        if form.f_course.data != 0:
-            dat = dat.filter(Groups.idCourses == form.f_course.data)
+        if form.fr_users.data != 0:
+            dat = dat.filter(Groups.idUsers == form.fr_users.data)
+        if form.fr_weekday.data != 0:
+            dat = dat.filter(Rasp.idDays == form.fr_weekday.data)
+        if form.fr_kabinet.data != 0:
+            dat = dat.filter(Rasp.idKabs == form.fr_kabinet.data)
+        if form.fr_course.data != 0:
+            dat = dat.filter(Groups.idCourses == form.fr_course.data)
     cnt = dat.count()
     return render_template("rasp_view.html", items=dat, form=form, cnt=cnt)
 
@@ -194,18 +229,18 @@ def reqister():
             return render_template('register.html', title='Регистрация',
                                    form=form,
                                    message="Пароли не совпадают")
-        db_sess = db_session.create_session()
-        if not db_sess.query(Users).filter(Users.name == form.name.data).first():
-            return render_template('register.html', title='Регистрация',
-                                   form=form,
-                                   message="Пользователь не найден, регистрация запрещена!")
-        if db_sess.query(Users).filter(Users.login == form.login.data).first():
-            return render_template('register.html', title='Регистрация',
-                                   form=form,
-                                   message="Такой логин уже есть в системе!")
-        user = db_sess.query(Users).filter(Users.name == form.name.data).first()
-        user.set_password(form.password.data, form.login.data)
-        db_sess.commit()
+        with db_session.create_session() as db_sess:
+            if not db_sess.query(Users).filter(Users.name == form.name.data).first():
+                return render_template('register.html', title='Регистрация',
+                                       form=form,
+                                       message="Пользователь не найден, регистрация запрещена!")
+            if db_sess.query(Users).filter(Users.login == form.login.data).first():
+                return render_template('register.html', title='Регистрация',
+                                       form=form,
+                                       message="Такой логин уже есть в системе!")
+            user = db_sess.query(Users).filter(Users.name == form.name.data).first()
+            user.set_password(form.password.data, form.login.data)
+            db_sess.commit()
         return redirect('/login')
     return render_template('register.html', title='Регистрация', form=form)
 
@@ -224,8 +259,8 @@ def base_view():
 
 @app.route("/rasp")
 def rasp_view():
-    db_sess = db_session.create_session()
-    rsp = db_sess.query(Rasp).order_by(Rasp.idDays, Rasp.tstart, Rasp.idKabs).all()
+    with db_session.create_session() as db_sess:
+        rsp = db_sess.query(Rasp).order_by(Rasp.idDays, Rasp.tstart, Rasp.idKabs).all()
     return render_template("rasp_view_free.html", items=rsp)
 
 

@@ -1,6 +1,33 @@
 <!doctype html>
 <html lang="en">
-<link rel="stylesheet" href="./static/styles/style.css" type="text/css"/>
+<style type="text/css">
+body            { font-family: sans-serif; background: #eee; }
+a, h1, h2       { color: #377ba8; }
+h1, h2          { font-family: 'Georgia', serif; margin: 0; }
+h1              { border-bottom: 2px solid #eee; }
+h2              { font-size: 1.2em; }
+
+.page           { margin: 2em auto; width: 35em; border: 5px solid #ccc;
+                  padding: 0.8em; background: white; }
+.entries        { list-style: none; margin: 0; padding: 0; }
+.entries li     { margin: 0.8em 1.2em; }
+.entries li h2  { margin-left: -1em; }
+.add-entry      { font-size: 0.9em; border-bottom: 1px solid #ccc; }
+.add-entry dl   { font-weight: bold; }
+.metanav        { text-align: right; font-size: 0.8em; padding: 0.3em;
+                  margin-bottom: 1em; background: #fafafa; }
+.flash          { font-weight: bold; color: #ff7777; padding: 0.5em; border: 0px solid #aacbe2; }
+.error          { background: #f0d6d6; padding: 0.5em; }
+
+.list_fields    { font-size: 14px; font-family: Arial; text-align: center; }
+.list_check     { height: 20px; width: 20px; color: green; }
+.area           { font-size: 16px; font-family: Arial; text-align: center; }
+.butts          { font-size: 18px; font-weight: bold; }
+.main_head      { font-size: 24px; font-weight: bold; text-align: center; width: 300px; }
+
+
+</style>
+<link rel="stylesheet" href="../static/styles/style.css" type="text/css"/>
 <table border="0" cellspacing="0" cellpadding="5">
     <tbody>
     <tr>
@@ -10,12 +37,12 @@
         <td>{% block header01 %}
         <td>
             <h3>
-                <table border="1" cellspacing="6" cellpadding="12" style="font: 12pt; vertical-align: top;">
+                <table border="1" cellspacing="4" cellpadding="8" style="font: 12pt; vertical-align: top;">
                     <tbody>
                     <tr>
-                        <td><a style="padding-left: 10px; padding-right: 10px;" href="/journ">Журналы посещений</a></td>
-                        <td><a style="padding-left: 10px; padding-right: 10px;" href="/main">Расписание занятий</a></td>
-                        <td><a style="padding-left: 10px; padding-right: 10px;" href="/stat">Статистика</a></td>
+                        <td><a href="/journ">Журналы посещений</a></td>
+                        <td><a href="/main">Расписание занятий</a></td>
+                        <td><a href="/stat">Статистика</a></td>
                     </tr>
                     </tbody>
                 </table>
@@ -29,13 +56,13 @@
             {% endif%}
             {% endblock %}
         </td>
-        <td>
-            <h3>{% block header04 %}{% if current_user.is_authenticated %} <a>Пользователь в
-                системе: </a><a class="navbar-brand" href="/logout">{{ current_user.name }}</a> {% else %}
+        <td class="area">
+            {% block header04 %}{% if current_user.is_authenticated %} <a>Пользователь в
+                системе: </a><a class="butts" href="/logout">{{ current_user.name }}</a> {% else %}
                 <p><a class="btn btn-primary " href="/register">Зарегистрироваться</a></p>
                 <p><a class="btn btn-success" href="/login">Войти</a></p>
                 {% endif %}{% endblock %}
-            </h3>
+
         </td>
         <td>{% block header05 %}{% endblock %}</td>
         <td>{% block header06 %}{% endblock %}</td>

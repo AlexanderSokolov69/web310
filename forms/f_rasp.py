@@ -14,33 +14,33 @@ from data.db_class_users import Users
 
 
 class RaspFilterForm(FlaskForm):
-    f_users = SelectField(u'ФИО Наставника', coerce=int)
-    f_weekday = SelectField(u'День недели', coerce=int)
-    f_kabinet = SelectField(u'Кабинет', coerce=int)
-    f_course = SelectField(u'Учебный курс', coerce=int)
+    fr_users = SelectField(u'ФИО Наставника', coerce=int)
+    fr_weekday = SelectField(u'День недели', coerce=int)
+    fr_kabinet = SelectField(u'Кабинет', coerce=int)
+    fr_course = SelectField(u'Учебный курс', coerce=int)
     submit = SubmitField('Применить фильтр')
 
     def __init__(self, *args, **kwargs):
         super(RaspFilterForm, self).__init__(*args, **kwargs)
-        db_sess = db_session.create_session()
-        # Users
-        users = db_sess.query(Users).join(Roles).join(Priv).filter(Priv.access.like(Const.ACC_PREPOD)).\
-            order_by(Users.name).all()
-        self.f_users.choices = [(g.id, u"%s" % f'{g.name}') for g in users]
-        self.f_users.choices.insert(0, (0, u"Не выбрана"))
-        self.f_users.default = session.get('f_users', 0)
-        # День недели
-        week_day = db_sess.query(Days).order_by(Days.id).all()
-        self.f_weekday.choices = [(g.id, u"%s" % f'{g.name}') for g in week_day]
-        self.f_weekday.choices.insert(0, (0, u"Не выбран"))
-        self.f_weekday.default = session.get('f_weekday', 0)
-        # Кабинет
-        kabs = db_sess.query(Kabs).order_by(Kabs.id).all()
-        self.f_kabinet.choices = [(g.id, u"%s" % f'{g.name}') for g in kabs]
-        self.f_kabinet.choices.insert(0, (0, u"Не выбран"))
-        self.f_kabinet.default = session.get('f_kabinet', 0)
-        # Кабинет
-        courses = db_sess.query(Courses).order_by(Courses.name).filter(Courses.year == Const.YEAR).all()
-        self.f_course.choices = [(g.id, u"%s" % f'{g.name[:40:1]}') for g in courses]
-        self.f_course.choices.insert(0, (0, u"Не выбран"))
-        self.f_course.default = session.get('f_course', 0)
+        with db_session.create_session() as db_sess:
+            # Users
+            users = db_sess.query(Users).join(Roles).join(Priv).filter(Priv.access.like(Const.ACC_PREPOD)).\
+                order_by(Users.name).all()
+            self.fr_users.choices = [(g.id, u"%s" % f'{g.name}') for g in users]
+            self.fr_users.choices.insert(0, (0, u"Не выбрана"))
+            self.fr_users.default = session.get('fr_users', 0)
+            # День недели
+            week_day = db_sess.query(Days).order_by(Days.id).all()
+            self.fr_weekday.choices = [(g.id, u"%s" % f'{g.name}') for g in week_day]
+            self.fr_weekday.choices.insert(0, (0, u"Не выбран"))
+            self.fr_weekday.default = session.get('fr_weekday', 0)
+            # Кабинет
+            kabs = db_sess.query(Kabs).order_by(Kabs.id).all()
+            self.fr_kabinet.choices = [(g.id, u"%s" % f'{g.name}') for g in kabs]
+            self.fr_kabinet.choices.insert(0, (0, u"Не выбран"))
+            self.fr_kabinet.default = session.get('fr_kabinet', 0)
+            # Кабинет
+            courses = db_sess.query(Courses).order_by(Courses.name).filter(Courses.year == Const.YEAR).all()
+            self.fr_course.choices = [(g.id, u"%s" % f'{g.name[:40:1]}') for g in courses]
+            self.fr_course.choices.insert(0, (0, u"Не выбран"))
+            self.fr_course.default = session.get('fr_course', 0)

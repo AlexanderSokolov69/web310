@@ -27,8 +27,9 @@ login_manager.init_app(app)
 
 @login_manager.user_loader
 def load_user(user_id):
-    db_sess = db_session.create_session()
-    return db_sess.query(Users).get(user_id)
+    with db_session.create_session() as db_sess:
+        ret = db_sess.query(Users).get(user_id)
+    return ret
 
 
 @app.route('/login', methods=['GET', 'POST'])
@@ -36,8 +37,8 @@ def load_user(user_id):
 def login():
     form = LoginForm()
     if form.validate_on_submit():
-        db_sess = db_session.create_session()
-        user = db_sess.query(Users).filter(Users.login == form.login.data).first()
+        with db_session.create_session() as db_sess:
+            user = db_sess.query(Users).filter(Users.login == form.login.data).first()
         if user and user.check_password(form.password.data):
             login_user(user, remember=form.remember_me.data)
             return redirect("/base")
@@ -55,18 +56,18 @@ def reqister():
             return render_template('register.html', title='Регистрация',
                                    form=form,
                                    message="Пароли не совпадают")
-        db_sess = db_session.create_session()
-        if not db_sess.query(Users).filter(Users.name == form.name.data).first():
-            return render_template('register.html', title='Регистрация',
-                                   form=form,
-                                   message="Пользователь не найден, регистрация запрещена!")
-        if db_sess.query(Users).filter(Users.login == form.login.data).first():
-            return render_template('register.html', title='Регистрация',
-                                   form=form,
-                                   message="Такой логин уже есть в системе!")
-        user = db_sess.query(Users).filter(Users.name == form.name.data).first()
-        user.set_password(form.password.data, form.login.data)
-        db_sess.commit()
+        with db_session.create_session() as db_sess:
+            if not db_sess.query(Users).filter(Users.name == form.name.data).first():
+                return render_template('register.html', title='Регистрация',
+                                       form=form,
+                                       message="Пользователь не найден, регистрация запрещена!")
+            if db_sess.query(Users).filter(Users.login == form.login.data).first():
+                return render_template('register.html', title='Регистрация',
+                                       form=form,
+                                       message="Такой логин уже есть в системе!")
+            user = db_sess.query(Users).filter(Users.name == form.name.data).first()
+            user.set_password(form.password.data, form.login.data)
+            db_sess.commit()
         return redirect('/login')
     return render_template('register.html', title='Регистрация', form=form)
 
@@ -86,15 +87,15 @@ def base_view():
 @app.route("/main")
 @login_required
 def index():
-    db_sess = db_session.create_session()
-    rsp = db_sess.query(Rasp).order_by(Rasp.idDays, Rasp.tstart, Rasp.idKabs).all()
+    with db_session.create_session() as db_sess:
+        rsp = db_sess.query(Rasp).order_by(Rasp.idDays, Rasp.tstart, Rasp.idKabs).all()
     return render_template("rasp_view.html", items=rsp)
 
 
 @app.route("/rasp")
 def rasp_view():
-    db_sess = db_session.create_session()
-    rsp = db_sess.query(Rasp).order_by(Rasp.idDays, Rasp.tstart, Rasp.idKabs).all()
+    with db_session.create_session() as db_sess:
+        rsp = db_sess.query(Rasp).order_by(Rasp.idDays, Rasp.tstart, Rasp.idKabs).all()
     return render_template("rasp_view_free.html", items=rsp)
 
 
