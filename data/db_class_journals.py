@@ -24,7 +24,7 @@ class Journals(SqlAlchemyBase, SerializerMixin):
     present = Column(String, nullable=True)
     estim = Column(String, nullable=True)
     shtraf = Column(String, nullable=True)
-    comment = Column(String, nullable=True)
     usercomm = Column(String, nullable=True)
+    comment = Column(String, nullable=True)
     groups = relationship(Groups)
 

@@ -5,6 +5,24 @@ class MyDict(dict):
     def __getattr__(self, item):
         return self.get(item, None)
 
+    def __getitem__(self, item):
+        return self.get(item, None)
+
+    def __repr__(self):
+        res = []
+        for k in self.keys():
+            res.append(f"{k}: {self[k]}")
+        return '\n'.join(res)
+
+
+def spis_to_dic(spis):  # format: "int='comment' int='comment' ..."
+    dic = MyDict()
+    if isinstance(spis, str):
+        for rec in spis.split():
+            k, v = rec.split('=')
+            dic[int(k)] = v
+    return dic
+
 
 def date_us_ru(data):
     """

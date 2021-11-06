@@ -2,7 +2,7 @@ from collections import namedtuple
 
 from flask import session
 from flask_login import current_user
-from flask_wtf import FlaskForm, Form
+from flask_wtf import FlaskForm
 from werkzeug.datastructures import MultiDict
 from wtforms import SelectField, SubmitField, StringField, FieldList, \
     TextAreaField, BooleanField, IntegerField, FormField, HiddenField
@@ -18,34 +18,31 @@ from data.db_class_kabs import Kabs
 from data.db_class_monts import Monts
 from data.db_class_rasp import Rasp
 from data.db_class_users import Users
-from data.misc import date_us_ru, MyDict
+from data.misc import date_us_ru, MyDict, spis_to_dic
 
-UserItem = namedtuple('UserItem', ['item_id', 'fio', 'present', 'b', 'c', 'name'])
+UserItem = namedtuple('UserItem', ['item_id', 'fio', 'present', 'estim', 'shtraf', 'comment', 'name'])
 
 
 class UsersList(FlaskForm):
-    item_id = IntegerField()
+    item_id = HiddenField()
     fio = StringField()
     present = BooleanField()
-    b = StringField()
-    c = StringField()
+    estim = StringField()
+    shtraf = StringField()
+    comment = StringField()
 
-    def __repr__(self):
-        ret = super(UsersList, self).__repr__()
-        print(ret)
-        return ret
 
-class UserListForm(Form):
+class UserListForm(FlaskForm):
     items = FieldList(FormField(UsersList))
 
-    def __init__(self, *args, **kwargs):
-        super(UserListForm, self).__init__(*args, **kwargs)
-        for item_form in self.items:
-            for item in kwargs['data']['items']:
-                if item.item_id == item_form.data['item_id']:
-                    item_form.present.label =''
-                    # item_form['shtraf'].label = 'sht'
-#                    item_form.label = item.item_id
+    # def __init__(self, *args, **kwargs):
+    #     super(UserListForm, self).__init__(*args, **kwargs)
+#         for item_form in self.items:
+#             for item in kwargs['data']['items']:
+#                 if item.item_id == item_form.data['item_id']:
+#                     item_form.present.label =''
+#                     # item_form['shtraf'].label = 'sht'
+# #                    item_form.label = item.item_id
 
 
 class ListFilterForm(FlaskForm):
@@ -55,29 +52,34 @@ class ListFilterForm(FlaskForm):
     fh_tend = StringField(u'Окончание')
     fh_comment = TextAreaField(u'Доп. комментарий')
     fs_spisok = None
-    fh_submit = SubmitField('Сохранить')
+    sb_submit = SubmitField('Сохранить')
+    sb_cancel = SubmitField('Назад')
 
 
     def __init__(self, current):
         super(ListFilterForm, self).__init__()
-        self.fh_theme.data = current.name
+        self.fh_theme.data = '' if not current.name else current.name.strip()
         self.fh_date.data = date_us_ru(current.date)
         self.fh_tstart.data = current.tstart
         self.fh_tend.data = current.tend
-        self.fh_comment.data = current.comment
-        db_sess = db_session.create_session()
+        self.fh_comment.data = '' if not current.comment else current.comment.strip()
         pres = [] if not current.present else [int(id) for id in current.present.split()]
+        estim = spis_to_dic(current.estim)
+        shtraf = spis_to_dic(current.shtraf)
+        comment = spis_to_dic(current.usercomm)
+
+        db_sess = db_session.create_session()
         spis = db_sess.query(Users).join(GroupTable, GroupTable.idUsers == Users.id).\
                filter(current.idGroups == GroupTable.idGroups).order_by(Users.name).all()
 
         users_list = []
         for user in spis:
-            users_list.append(UserItem(user.id, user.name, user.id in pres, '', '', user.name))
+            _id = user.id
+            users_list.append(UserItem(_id, user.name, _id in pres,estim[_id] ,shtraf[_id], comment[_id], user.name))
         data = MyDict()
         data['items'] = users_list
-#        print(data)
         self.fs_spisok = UserListForm(data=data)
 
- #       print(self.fs_spisok.items())
+
 
 

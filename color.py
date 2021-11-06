@@ -1,6 +1,6 @@
 #from flask .ext.wtf import Form
 from flask import Flask, render_template, session, redirect, url_for
-from flask_wtf import Form
+from flask_wtf import FlaskForm
 from wtforms import SelectMultipleField, SubmitField, widgets
 
 SECRET_KEY = 'development'
@@ -26,7 +26,7 @@ class MultiCheckboxField(SelectMultipleField):
     #     return super(MultiCheckboxField, self).process_data(value)
 
 
-class ColorLookupForm(Form):
+class ColorLookupForm(FlaskForm):
     submit = SubmitField('Save')
     colors = MultiCheckboxField(None)
 

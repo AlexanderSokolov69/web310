@@ -1,6 +1,8 @@
 
 class Const:
 #    DB: QSqlDatabase = None
+    VERSION = '1.1'
+    BASENAME = 'Кубышка'
     TEST_MODE = False
     IN_TRANSACTION = False
     YEAR = 2021

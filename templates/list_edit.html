@@ -1,46 +1,59 @@
 {% extends "base.html" %}
-{% import "bootstrap/wtf.html" as wtf %}
 
-{% block header00 %}<h2>Журнал посещений</h2>{% endblock %}
+{% block header00 %}Журнал посещений{% endblock %}
+
 {% block left_column %}
-<form action="" method="post" style="font: 12pt">
-    {{ form.csrf_token() }}
-    {{ form.hidden_tag() }}
-    <table border="0" cellpadding="4" cellspacing="2" style="padding-left: 10px; padding-right: 10px">
-        <tbody>{% for field in form if (field.name != "csrf_token") and ('fh_' in field.name) %}
+
+<form action="" method="post">
+    <table border="0" cellpadding="4" cellspacing="2" width="100%">
+        <tbody>
         <tr>
-                <td align="left" width="20%">{{ field.label }}</td>
-                <td align="right">{{ field }}</td>
+            <td><h2>Лист журнала</h2></td>
+            <td align="right">{{form.sb_submit(class="butts")}} {{form.sb_cancel(class="butts")}}</td>
+        </tr>
+        </tbody>
+    </table>
+
+    <hr>
+    <table border="0" cellpadding="4" cellspacing="0" class="area">
+        <tbody>{% for field in form if ('fh_' in field.name) %}
+        <tr>
+            <td align="left" width="20%">{{ field.label(class="area") }}</td>
+            <td align="right">{{ field(class="area", cols="50", rows="2", size=10) }}</td>
         </tr>
         {% endfor %}
         </tbody>
     </table>
-    {% endblock %}
+    <hr>
+    {{ form.csrf_token() }}
+    {{ form.hidden_tag() }}
+</form>
+
+{% endblock %}
 
 {% block content %}
 <div class="col-md6 border rounded">
-    <table style="padding-left: 10px; padding-right: 10px;" border="1" cellspacing="1" cellpadding="4">
+    <table border="1" cellspacing="1" cellpadding="4">
         <tbody>
         <tr style="background-color: rgb(52, 73, 94); color: #ffffff;">
-            <th scope="col">ID</th>
-            <th scope="col">Фамилия И.О.</th>
+            <th scope="col">№пп</th>
+            <th scope="col">Кубист</th>
             <th scope="col">Посещ.</th>
+            <th scope="col">Оценка</th>
             <th scope="col">Рейтинг</th>
             <th scope="col">Комментарии</th>
         </tr>
         {% for field in form.fs_spisok.items if (field.name != "csrf_token") %}
-        <tr>
-                <td align="left">{{ field.data['item_id'] }}</td>
-                <td align="left">{{ field.data['fio'] }}</td>
-                <td align="center">{{ wtf.form_field(field.present) }}</td>
-                <td align="center">{{ wtf.form_field(field.b) }}</td>
-                <td align="center">{{ wtf.form_field(field.c) }}</td>
-
-
+        <tr class="list_fields">
+            <td align="center">{{ loop.index }}</td>
+            <td align="left">{{ field.data.fio }}</td>
+            <td align="center">{{ field.present(class="list_check") }}</td>
+            <td align="center">{{ field.estim(size=5, class="list_fields") }}</td>
+            <td align="center">{{ field.shtraf(size=10, class="list_fields") }}</td>
+            <td align="left">{{ field.comment(size=40, class="list_fields") }}</td>
         </tr>
         {% endfor %}
         </tbody>
     </table>
 </div>
-    </form>
 {% endblock %}
