@@ -28,19 +28,31 @@ class RaspFilterForm(FlaskForm):
                 order_by(Users.name).all()
             self.fr_users.choices = [(g.id, u"%s" % f'{g.name}') for g in users]
             self.fr_users.choices.insert(0, (0, u"Не выбрана"))
-            self.fr_users.default = session.get('fr_users', 0)
+            if self.fr_users.data is not None:
+                self.fr_users.default = self.fr_users.data
+            else:
+                self.fr_users.data = session.get('fr_users', 0)
             # День недели
             week_day = db_sess.query(Days).order_by(Days.id).all()
             self.fr_weekday.choices = [(g.id, u"%s" % f'{g.name}') for g in week_day]
             self.fr_weekday.choices.insert(0, (0, u"Не выбран"))
-            self.fr_weekday.default = session.get('fr_weekday', 0)
+            if self.fr_weekday.data is not None:
+                self.fr_weekday.default = self.fr_weekday.data
+            else:
+                self.fr_weekday.data = session.get('fr_weekday', 0)
             # Кабинет
             kabs = db_sess.query(Kabs).order_by(Kabs.id).all()
             self.fr_kabinet.choices = [(g.id, u"%s" % f'{g.name}') for g in kabs]
             self.fr_kabinet.choices.insert(0, (0, u"Не выбран"))
-            self.fr_kabinet.default = session.get('fr_kabinet', 0)
+            if self.fr_kabinet.data is not None:
+                self.fr_kabinet.default = self.fr_kabinet.data
+            else:
+                self.fr_kabinet.data = session.get('fr_kabinet', 0)
             # Кабинет
             courses = db_sess.query(Courses).order_by(Courses.name).filter(Courses.year == Const.YEAR).all()
             self.fr_course.choices = [(g.id, u"%s" % f'{g.name[:40:1]}') for g in courses]
             self.fr_course.choices.insert(0, (0, u"Не выбран"))
-            self.fr_course.default = session.get('fr_course', 0)
+            if self.fr_course.data is not None:
+                self.fr_course.default = self.fr_course.data
+            else:
+                self.fr_course.data = session.get('fr_course', 0)

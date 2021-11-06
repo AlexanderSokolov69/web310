@@ -28,12 +28,18 @@ class JournFilterForm(FlaskForm):
                 filter(Groups.idUsers == current_user.id, Courses.year == Const.YEAR).order_by(Groups.name)
             self.ff_groups.choices = [(g.id, u"%s" % f'{g.name}') for g in group]
             self.ff_groups.choices.insert(0, (0, u"Не выбрана"))
-            self.ff_groups.default = session.get('ff_groups', 0)
+            if self.ff_groups.data is not None:
+                self.ff_groups.default = self.ff_groups.data
+            else:
+                self.ff_groups.data = session.get('ff_groups', 0)
             # Месяц
             month = db_sess.query(Monts).order_by(Monts.id).all()
             self.ff_month.choices = [(g.num, u"%s" % f'{g.name}') for g in month]
             self.ff_month.choices.insert(0, (0, u"Не выбран"))
-            self.ff_month.default = session.get('ff_month', 0)
+            if self.ff_month.data is not None:
+                self.ff_month.default = self.ff_month.data
+            else:
+                self.ff_month.data = session.get('ff_month', 0)
             # Расписание занятий
             self.rasp = db_sess.query(Rasp).join(Groups).join(Days).join(Kabs). \
                 filter(Groups.idUsers == current_user.id).order_by(Groups.name, Rasp.idDays)

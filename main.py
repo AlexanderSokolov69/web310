@@ -33,7 +33,8 @@ login_manager.init_app(app)
 
 @app.teardown_appcontext
 def shutdown_session(exception=None):
-    print(exception)
+    pass
+    # print(exception)
 #    db_session.orm.close_all_sessions()
 
 
@@ -94,9 +95,9 @@ def jorn_edit(id_rec):
                     shtraf.append(f"{rec['item_id']}={rec['shtraf'].strip()}")
                 if rec['comment']:
                     usercomm.append(f"{rec['item_id']}={rec['comment'].strip()}")
-            print(form.hide_id, form.fh_theme.data.strip(), date_ru_us(form.fh_date.data), form.fh_tstart.data,
-                  form.fh_tend.data, form.fh_comment.data.strip())
-            print(present, estim, shtraf, usercomm)
+            # print(form.hide_id, form.fh_theme.data.strip(), date_ru_us(form.fh_date.data), form.fh_tstart.data,
+            #       form.fh_tend.data, form.fh_comment.data.strip())
+            # print(present, estim, shtraf, usercomm)
             with db_session.create_session() as db_sess:
                 current = db_sess.query(Journals).get(form.hide_id)
                 if current:
@@ -110,8 +111,6 @@ def jorn_edit(id_rec):
                     current.usercomm = ' '.join(usercomm)
                     current.comment = form.fh_comment.raw_data[0].strip()
                     db_sess.commit()
-        else:
-            print('Cancel')
         return redirect("/journ")
     return render_template("list_edit.html", form=form)
 
@@ -129,29 +128,31 @@ def jorn_delete(id_rec):
 
 @app.route('/journ', methods=['GET', 'POST'])
 @login_required
-def jorn_view():
+def journ_view():
     form = JournFilterForm()
     dat = form.rasp
     with db_session.create_session() as db_sess:
         fjourn = db_sess.query(Journals).join(Groups).join(Courses).\
             filter(Groups.idUsers == current_user.id, Courses.year == Const.YEAR).\
             order_by(Journals.date, Journals.tstart)
-    if form.validate_on_submit():
+        if form.validate_on_submit():
+            session['ff_groups'] = form.ff_groups.data
+            session['ff_month'] = form.ff_month.data
         if form.ff_groups.data != 0:
             dat = dat.filter(Groups.id == form.ff_groups.data)
             fjourn = fjourn.filter(Groups.id == form.ff_groups.data)
         if form.ff_month.data != 0:
             fjourn = fjourn.filter(extract('month', Journals.date) == form.ff_month.data)
-    journ = []
-    for rec in fjourn:
-        new = MyDict()
-        new = MyDict(id=rec.id, date=date_us_ru(rec.date), tstart=rec.tstart, tend=rec.tend,
-                     counter=0 if not rec.present else len(rec.present.split()),
-                     name='' if not rec.name else rec.name.strip(),
-                     comment='' if not rec.comment else rec.comment.strip(),
-                     gruppa=f"{'' if not rec.groups.name else rec.groups.name.strip()} "
-                            f"{'' if not rec.groups.comment else rec.groups.comment.strip()}")
-        journ.append(new)
+        journ = []
+        for rec in fjourn:
+            new = MyDict()
+            new = MyDict(id=rec.id, date=date_us_ru(rec.date), tstart=rec.tstart, tend=rec.tend,
+                         counter=0 if not rec.present else len(rec.present.split()),
+                         name='' if not rec.name else rec.name.strip(),
+                         comment='' if not rec.comment else rec.comment.strip(),
+                         gruppa=f"{'' if not rec.groups.name else rec.groups.name.strip()} "
+                                f"{'' if not rec.groups.comment else rec.groups.comment.strip()}")
+            journ.append(new)
     return render_template("journ_view.html", form=form, spis=dat, journ=journ)
 
 
@@ -204,21 +205,24 @@ def index():
     #    if request.method == 'GET':
     with db_session.create_session() as db_sess:
         rsp = db_sess.query(Rasp).join(Groups).join(Users).order_by(Rasp.idDays, Rasp.tstart, Rasp.idKabs)
-    form = RaspFilterForm()
+    form_rasp = RaspFilterForm()
     dat = rsp
-
-    if form.validate_on_submit():
+    if  request.method == 'POST' and form_rasp.validate_on_submit():
+        session['fr_users'] = form_rasp.fr_users.data
+        session['fr_weekday'] = form_rasp.fr_weekday.data
+        session['fr_kabinet'] = form_rasp.fr_kabinet.data
+        session['fr_course'] = form_rasp.fr_course.data
         #    if request.method == 'POST':
-        if form.fr_users.data != 0:
-            dat = dat.filter(Groups.idUsers == form.fr_users.data)
-        if form.fr_weekday.data != 0:
-            dat = dat.filter(Rasp.idDays == form.fr_weekday.data)
-        if form.fr_kabinet.data != 0:
-            dat = dat.filter(Rasp.idKabs == form.fr_kabinet.data)
-        if form.fr_course.data != 0:
-            dat = dat.filter(Groups.idCourses == form.fr_course.data)
-    cnt = dat.count()
-    return render_template("rasp_view.html", items=dat, form=form, cnt=cnt)
+    if form_rasp.fr_users.data != 0:
+        dat = dat.filter(Groups.idUsers == form_rasp.fr_users.data)
+    if form_rasp.fr_weekday.data != 0:
+        dat = dat.filter(Rasp.idDays == form_rasp.fr_weekday.data)
+    if form_rasp.fr_kabinet.data != 0:
+        dat = dat.filter(Rasp.idKabs == form_rasp.fr_kabinet.data)
+    if form_rasp.fr_course.data != 0:
+        dat = dat.filter(Groups.idCourses == form_rasp.fr_course.data)
+    # print('goto /main')
+    return render_template("rasp_view.html", items=dat, form_rasp=form_rasp)
 
 
 @app.route('/register', methods=['GET', 'POST'])

@@ -5,14 +5,14 @@
 
 {% block left_column %}
 <form action="" method="post">
-    {{ form.csrf_token() }}
-    {{ form.hidden_tag() }}
+    {{ form_rasp.csrf_token() }}
+    {{ form_rasp.hidden_tag() }}
     <table border="0" cellpadding="4" cellspacing="2" width="100%">
-    <td width="100%" align="right">{{form.submit(class="butts")}}</td>
+    <td width="100%" align="right">{{form_rasp.submit(class="butts")}}</td>
     </table>
     <hr>
     <table border="0" cellpadding="4" cellspacing="2">
-        <tbody>{% for field in form if 'fr_' in field.name %}
+        <tbody>{% for field in form_rasp if 'fr_' in field.name %}
         <tr>
                 <td align="left">{{ field.label(class="area") }}</td>
                 <td align="right">{{ field(class="list_fields") }}</td>

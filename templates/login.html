@@ -4,6 +4,7 @@
 
 {% block left_column %}
     <h2>Авторизация</h2>
+<hr>
     <form action="" method="post">
         {{ form.hidden_tag() }}
         <p>
@@ -25,6 +26,7 @@
             {% endfor %}
         </p>
         <p>{{ form.remember_me() }} {{ form.remember_me.label }}</p>
+    <hr>
         <p>{{ form.submit(type="submit", class="butts") }}</p>
         <div>{{ message }}</div>
     </form>

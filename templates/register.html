@@ -4,6 +4,7 @@
 
 {% block left_column %}
 <h2>Регистрация</h2>
+<hr>
 <form action="" method="post">
     {{ form.hidden_tag() }}
     <p>
@@ -42,6 +43,7 @@
     </p>
     {% endfor %}
     </p>
+    <hr>
     <p>{{ form.submit(type="submit", class="butts") }}</p>
     {{message}}
 </form>

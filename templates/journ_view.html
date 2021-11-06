@@ -20,12 +20,16 @@
         </tbody>
     </table>
     <hr>
-    <p>Найдено записей: {{ spis.count() }}</p>
+    <p></p>
+    <h2>Расписание занятий</h2>
     <div style=" height: 500px; overflow-y: scroll;">
-    <table border="1" cellpadding="6" cellspacing="2">
+    <table class="list_fields" border="1" cellpadding="6" cellspacing="2">
         <tbody>
         {% for rsp in spis %}
         <tr>
+            <td width="60px" align="center"><a style="color: blue;" href="/rasp/add/{{rsp.id}}">[+]</a>
+                <a style="color: green;" href="/rasp/edit/{{rsp.id}}">[V]</a>
+                <a style="color: red;" href="/rasp/delete/{{rsp.id}}">[X]</a></td>
                 <td align="left">{{ rsp.days.name }}</td>
                 <td align="center" style="background-color: rgb{{rsp.kabs.color}}">{{ rsp.kabs.name }}</td>
                 <td align="center">{{ rsp.tstart }}</td>
@@ -42,7 +46,7 @@
 
 {% block content %}
 <div class="col-md6 border rounded">
-    <table border="1" cellspacing="1" cellpadding="4">
+    <table class="list_fields" border="1" cellspacing="1" cellpadding="4">
         <tbody>
         <tr style="background-color: rgb(52, 73, 94); color: #ffffff;">
             <th scope="col">Режим</th>
@@ -51,7 +55,7 @@
             <th scope="col">Окончание</th>
             <th scope="col">Колич.</th>
             <th scope="col">Группа</th>
-            <th scope="col">Тема занятия</th>
+            <th scope="col" width="40%">Тема занятия</th>
             <th scope="col">Доп.комментарий</th>
         </tr>
         {% for item in journ%}
@@ -63,8 +67,8 @@
             <td align="center">{{item.tstart}}</td>
             <td align="center">{{item.tend}}</td>
             <td align="center">{{item.counter}}</td>
-            <td align="center" width="150px">{{item.gruppa}}</td>
-            <td align="left">{{item.name}}</td>
+            <td align="center">{{item.gruppa}}</td>
+            <td align="left" width="40%">{{item.name}}</td>
             <td align="left">{{item.comment}}</td>
         </tr>
         {% endfor %}
