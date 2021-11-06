@@ -16,28 +16,8 @@ h2              { font-size: 1.2em; }
 .flash          { font-weight: bold; color: #ff7777; padding: 0.5em; border: 0px solid #aacbe2; }
 .error          { background: #f0d6d6; padding: 0.5em; }
 
-.list_fields    {
- font-size: 14px;
- font-family: Arial;
- text-align: center;
-}
-.list_check     {
- height: 20px;
- width: 20px;
- color: green;
-}
-.area           {
- font-size: 16px;
- font-family: Arial;
- text-align: center;
-}
-.butts          {
- font-size: 18px;
- font-weight: bold;
-}
-.main_head      {
- font-size: 24px;
- font-weight: bold;
- text-align: center;
- width: 300px;
-}
+.list_fields    { font-size: 14px; font-family: Arial; text-align: center; }
+.list_check     { height: 20px; width: 20px; color: green; }
+.area           { font-size: 16px; font-family: Arial; text-align: center; }
+.butts          { font-size: 18px; font-weight: bold; }
+.main_head      { font-size: 24px; font-weight: bold; text-align: center; width: 300px; }
