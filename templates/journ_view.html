@@ -7,7 +7,14 @@
     {{ form.csrf_token() }}
     {{ form.hidden_tag() }}
     <table border="0" cellpadding="4" cellspacing="2" width="100%">
-    <td width="100%" align="right">{{form.submit(class="butts")}}</td>
+        <td>
+            {% if form.fill_flag %}
+            {{form.fill_add(class="butts")}} {{form.fill_del(class="butts")}}
+            {% else %}
+            Установите фильтр
+            {% endif %}
+        </td>
+    <td align="right">{{form.submit(class="butts")}}</td>
     </table>
     <hr>
     <table border="0" cellpadding="4" cellspacing="2" width="80%">
@@ -28,7 +35,6 @@
         {% for rsp in spis %}
         <tr>
             <td width="60px" align="center"><a style="color: blue;" href="/rasp/add/{{rsp.id}}">[+]</a>
-                <a style="color: green;" href="/rasp/edit/{{rsp.id}}">[V]</a>
                 <a style="color: red;" href="/rasp/delete/{{rsp.id}}">[X]</a></td>
                 <td align="left">{{ rsp.days.name }}</td>
                 <td align="center" style="background-color: rgb{{rsp.kabs.color}}">{{ rsp.kabs.name }}</td>

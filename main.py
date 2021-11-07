@@ -5,8 +5,6 @@ from flask_login import LoginManager, login_user, logout_user, login_required, c
 from flask_wtf import FlaskForm
 from sqlalchemy import extract
 from werkzeug.utils import redirect
-from wtforms import SubmitField, BooleanField, IntegerField
-
 from data import db_session
 from data.cl_const import Const
 from data.db_class_courses import Courses
@@ -21,6 +19,7 @@ from data.db_class_users import Users
 from data.misc import MyDict, date_us_ru, date_ru_us
 from forms.f_journ import JournFilterForm
 from forms.f_list_journ import ListFilterForm
+from forms.f_new_rasp import NewRasp
 from forms.f_rasp import RaspFilterForm
 from forms.f_user import LoginForm, RegisterForm
 
@@ -54,6 +53,42 @@ def load_user(user_id):
     with db_session.create_session() as db_sess:
         ret = db_sess.query(Users).get(user_id)
     return ret
+
+
+@app.route('/rasp/add/<int:id_rec>', methods=['GET', 'POST'])
+@login_required
+def rasp_add(id_rec):
+    with db_session.create_session() as db_sess:
+        curr = db_sess.query(Rasp).get(id_rec)
+    form = NewRasp(idGroups=curr.idGroups, idKabs=curr.idKabs, idDays=curr.idDays, tstart=curr.tstart,
+                   tend=curr.tend, name='Новая', comment='')
+    if form.validate_on_submit():
+        if form.bb_submit.data:
+            with db_session.create_session() as db_sess:
+                curr = db_sess.query(Rasp).get(id_rec)
+                rasp = Rasp()
+                rasp.idGroups = form.idGroups.raw_data[0]
+                rasp.idKabs = form.idKabs.raw_data[0]
+                rasp.idDays = form.idDays.raw_data[0]
+                rasp.tstart = form.tstart.raw_data[0]
+                rasp.tend = form.tend.raw_data[0]
+                rasp.name = form.name.raw_data[0]
+                rasp.comment = form.comment.raw_data[0]
+                db_sess.add(rasp)
+                db_sess.commit()
+        return redirect("/journ")
+    return render_template("rasp_add.html", form=form)
+
+
+@app.route('/rasp/delete/<int:id_rec>', methods=['GET'])
+@login_required
+def rasp_delete(id_rec):
+    with db_session.create_session() as db_sess:
+        rasp = db_sess.query(Rasp).get(id_rec)
+        # if not ('Новая' in rasp.name):
+        db_sess.delete(rasp)
+        db_sess.commit()
+    return redirect("/journ")
 
 
 @app.route('/journ/add/<int:id_rec>', methods=['GET'])

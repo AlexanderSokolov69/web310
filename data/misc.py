@@ -1,3 +1,10 @@
+import datetime
+
+from data import db_session
+from data.cl_const import Const
+from data.db_class_journals import Journals
+
+
 class MyDict(dict):
     __setattr__ = dict.__setitem__
     __delattr__ = dict.__delitem__
@@ -61,6 +68,70 @@ def date_ru_us(data):
             # print('error in date_ru_us(data)')
     return ret
 
+
+def get_days_list(days: dict, mon=9):
+    def next_first_date(d: datetime):
+        month = (d.month) % 12 + 1
+        year = d.year + (month == 1)
+        return datetime.date(year, month, 1)
+
+    if mon > 8:
+        year = Const.YEAR
+    else:
+        year = Const.YEAR + 1
+    d1 = datetime.date(year, mon, 1)
+    d2 = next_first_date(d1)
+    ret = []
+    oneday = datetime.timedelta(1)
+    while d1 < d2:
+        for day in days:
+            if (d1.weekday() + 1) == day[0]:
+                ret.append([str(d1), day[1:]])
+        d1 += oneday
+    return ret
+
+
+def journ_add(*args, **kwargs):
+        month = kwargs['month']
+        rasp = kwargs['rasp']
+        journ = kwargs['journ']
+        list_days = MyDict()
+        if rasp.count() > 0:
+            for i, item in enumerate(rasp):
+                list_days[item.idDays] = [item.idDays, item.tstart, item.tend]
+            list_days = get_days_list(list_days, month)
+            test = [] if journ.count() == 0 else [day.data for day in journ]
+            for rec in list_days:
+                if rec[0] not in test:
+                    arg = MyDict()
+                    arg['idGroups'] = rasp[0].idGroups
+                    arg['date'] = rec[0]
+                    arg['name'] = 'Тема...'
+                    arg['tstart'] = rec[1]
+                    arg['tend'] = rec[2]
+                    with db_session.create_session() as db_sess:
+                        db_sess.append(Journals(arg))
+                        db_sess.commit()
+
+
+"""
+    object = self.sender().objectName()
+    if object == 'tab4_del_journ':
+        del_cnt = 0
+        id_select = []
+        for index in self.tab4_journ_view.selectedIndexes():
+            if index.column() == Const.JRN_DATE:
+                if len(self.journ.cache[index.row()][Const.JRN_THEME].strip()) < 9:
+                    id = self.journ.cache[index.row()][Const.JRN_ID]
+                    self.journ.rec_delete(id)
+                    del_cnt += 1
+                else:
+                    self.message_out.emit(
+                        f"Невозможно удалить запись журнала: "
+                        f"'{self.journ.cache[index.row()][Const.JRN_THEME].strip()}'")
+        if del_cnt:
+            self.journ_update()
+"""
 
 if __name__ == '__main__':
     d = MyDict(attr='32')

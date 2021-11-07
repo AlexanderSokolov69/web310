@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+
+{% block header00 %}Добавляем занятие{% endblock %}
+
+{% block left_column %}
+<form action="" method="post">
+    {{ form.csrf_token() }}
+    {{ form.hidden_tag() }}
+    <table border="0" cellpadding="4" cellspacing="2" width="100%">
+        <td width="100%" align="right">{{form.bb_submit(class="butts")}} {{form.bb_cancel(class="butts")}}</td>
+    </table>
+    <hr>
+    <table border="0" cellpadding="4" cellspacing="2">
+        <tbody>{% for field in form if '_' not in field.name %}
+        <tr>
+            <td align="left">{{ field.label(class="area") }}</td>
+            <td align="right">{{ field(class="list_fields") }}</td>
+        </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+    <hr>
+</form>
+{% endblock %}

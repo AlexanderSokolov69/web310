@@ -19,6 +19,8 @@ class JournFilterForm(FlaskForm):
     ff_groups = SelectField(u'Учебная группа', coerce=int)
     ff_month = SelectField(u'Месяц', coerce=int)
     submit = SubmitField('Применить фильтр')
+    fill_add = SubmitField('Заполнить')
+    fill_del = SubmitField('Очистить')
 
     def __init__(self, *args, **kwargs):
         super(JournFilterForm, self).__init__(*args, **kwargs)
@@ -43,4 +45,5 @@ class JournFilterForm(FlaskForm):
             # Расписание занятий
             self.rasp = db_sess.query(Rasp).join(Groups).join(Days).join(Kabs). \
                 filter(Groups.idUsers == current_user.id).order_by(Groups.name, Rasp.idDays)
+            self.fill_flag = all([self.ff_groups.data, self.ff_month.data])
 
