@@ -17,29 +17,31 @@
         <td align="right">{{form.submit(class="flt_butts")}}</td>
     </table>
     <hr>
-    <table class="top_field" border="0" cellpadding="10" cellspacing="4" width="100%" >
-        <tbody>{% for field in form if 'ff_' in field.name %}
-        <tr>
-            <td align="left">{{ field.label(class="area") }}</td>
-            <td align="right">{{ field(class="list_fields") }}</td>
-        </tr>
-        {% endfor %}
-        </tbody>
-    </table>
+    <table border="1" cellpadding="0" cellspacing="0" width="100%"><tbody><tr><td>
+            <table class="top_field" border="0" cellpadding="10" cellspacing="4" width="100%">
+                <tbody>{% for field in form if 'ff_' in field.name %}
+                <tr>
+                    <td align="left">{{ field.label(class="area") }}</td>
+                    <td align="right">{{ field(class="list_fields") }}</td>
+                </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </td></tr></tbody></table>
     <hr>
     <p></p>
     <table class="list_fields" border="0" cellpadding="6" cellspacing="2" width="100%">
         <tbody>
         <tr>
             <td align="center"><h2>Расписание занятий</h2></td>
-            </tr>
+        </tr>
         <tr>
             <td align="left">Найдено записей:{{ cnt }}</td>
         </tr>
         </tbody>
     </table>
     <div style=" height: 500px; overflow-y: scroll;">
-        <table class="list_fields" border="1" cellpadding="6" cellspacing="2">
+        <table class="table_body" border="1" cellpadding="6" cellspacing="2">
             <tbody>
             {% for rsp in spis %}
             <tr>
@@ -74,7 +76,7 @@
             <th scope="col">Доп.комментарий</th>
         </tr>
         {% for item in journ%}
-        <tr>
+        <tr class="table_body">
             <td width="80px" align="center"><a style="color: blue;" href="/journ/add/{{item.id}}">[+]</a>
                 <a style="color: green;" href="/journ/edit/{{item.id}}">-[V]-</a>
                 <a style="color: red;" href="/journ/delete/{{item.id}}">[X]</a></td>
