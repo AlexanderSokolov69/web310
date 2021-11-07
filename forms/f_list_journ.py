@@ -20,7 +20,7 @@ from data.db_class_monts import Monts
 from data.db_class_rasp import Rasp
 from data.db_class_users import Users
 from data.misc import date_us_ru, MyDict, spis_to_dic
-from flask_validator import Validator
+
 
 UserItem = namedtuple('UserItem', ['item_id', 'fio', 'present', 'estim', 'shtraf',
                                    'comment', 'navigator', 'name'])
@@ -38,15 +38,6 @@ class UsersList(FlaskForm):
 
 class UserListForm(FlaskForm):
     items = FieldList(FormField(UsersList))
-
-    # def __init__(self, *args, **kwargs):
-    #     super(UserListForm, self).__init__(*args, **kwargs)
-#         for item_form in self.items:
-#             for item in kwargs['data']['items']:
-#                 if item.item_id == item_form.data['item_id']:
-#                     item_form.present.label =''
-#                     # item_form['shtraf'].label = 'sht'
-# #                    item_form.label = item.item_id
 
 
 class ListFilterForm(FlaskForm):
