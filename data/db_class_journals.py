@@ -4,6 +4,7 @@ from sqlalchemy import Column, Integer, String, ForeignKey
 from sqlalchemy.orm import relationship
 from sqlalchemy_serializer import SerializerMixin
 
+from .cl_const import Const
 from .db_class_courses import Courses
 from .db_class_groups import Groups
 from .db_class_places import Places

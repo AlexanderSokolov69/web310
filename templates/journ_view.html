@@ -14,10 +14,10 @@
             <a style="color: red;">Установите фильтр</a>
             {% endif %}
         </td>
-        <td align="right">{{form.submit(class="butts")}}</td>
+        <td align="right">{{form.submit(class="flt_butts")}}</td>
     </table>
     <hr>
-    <table border="0" cellpadding="4" cellspacing="2" width="80%">
+    <table class="top_field" border="0" cellpadding="10" cellspacing="4" width="100%" >
         <tbody>{% for field in form if 'ff_' in field.name %}
         <tr>
             <td align="left">{{ field.label(class="area") }}</td>
@@ -28,11 +28,13 @@
     </table>
     <hr>
     <p></p>
-    <table class="list_fields" border="0" cellpadding="6" cellspacing="2" width="800%">
+    <table class="list_fields" border="0" cellpadding="6" cellspacing="2" width="100%">
         <tbody>
         <tr>
-            <td align="left"><h2>Расписание занятий</h2></td>
-            <td align="right">Найдено записей:{{ cnt }}</td>
+            <td align="center"><h2>Расписание занятий</h2></td>
+            </tr>
+        <tr>
+            <td align="left">Найдено записей:{{ cnt }}</td>
         </tr>
         </tbody>
     </table>
@@ -41,8 +43,8 @@
             <tbody>
             {% for rsp in spis %}
             <tr>
-                <td width="60px" align="center"><a style="color: blue;" href="/rasp/add/{{rsp.id}}">[+]</a>
-                    <a style="color: red;" href="/rasp/delete/{{rsp.id}}">[X]</a></td>
+                <td width="60px" align="center"><a style="color: blue;" href="/rasp/add/{{rsp.id}}">[+]-</a>
+                    <a style="color: red;" href="/rasp/delete/{{rsp.id}}">-[X]</a></td>
                 <td align="left">{{ rsp.days.name }}</td>
                 <td align="center" style="background-color: rgb{{rsp.kabs.color}}">{{ rsp.kabs.name }}</td>
                 <td align="center">{{ rsp.tstart }}</td>
@@ -61,7 +63,7 @@
 <div class="col-md6 border rounded">
     <table class="list_fields" border="1" cellspacing="1" cellpadding="4">
         <tbody>
-        <tr style="background-color: rgb(52, 73, 94); color: #ffffff;">
+        <tr class="table_head">
             <th scope="col">Режим</th>
             <th scope="col">Дата</th>
             <th scope="col">Начало</th>
@@ -74,7 +76,7 @@
         {% for item in journ%}
         <tr>
             <td width="80px" align="center"><a style="color: blue;" href="/journ/add/{{item.id}}">[+]</a>
-                <a style="color: green;" href="/journ/edit/{{item.id}}">[V]</a>
+                <a style="color: green;" href="/journ/edit/{{item.id}}">-[V]-</a>
                 <a style="color: red;" href="/journ/delete/{{item.id}}">[X]</a></td>
             <td width="80px" align="center">{{item['date']}}</td>
             <td align="center">{{item.tstart}}</td>

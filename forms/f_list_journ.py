@@ -6,6 +6,7 @@ from flask_wtf import FlaskForm
 from werkzeug.datastructures import MultiDict
 from wtforms import SelectField, SubmitField, StringField, FieldList, \
     TextAreaField, BooleanField, IntegerField, FormField, HiddenField
+from wtforms.validators import DataRequired
 
 from data import db_session
 from data.cl_const import Const
@@ -19,8 +20,10 @@ from data.db_class_monts import Monts
 from data.db_class_rasp import Rasp
 from data.db_class_users import Users
 from data.misc import date_us_ru, MyDict, spis_to_dic
+from flask_validator import Validator
 
-UserItem = namedtuple('UserItem', ['item_id', 'fio', 'present', 'estim', 'shtraf', 'comment', 'name'])
+UserItem = namedtuple('UserItem', ['item_id', 'fio', 'present', 'estim', 'shtraf',
+                                   'comment', 'navigator', 'name'])
 
 
 class UsersList(FlaskForm):
@@ -30,6 +33,7 @@ class UsersList(FlaskForm):
     estim = StringField()
     shtraf = StringField()
     comment = StringField()
+    navigator = BooleanField()
 
 
 class UserListForm(FlaskForm):
@@ -48,14 +52,13 @@ class UserListForm(FlaskForm):
 class ListFilterForm(FlaskForm):
     hide_id = HiddenField()
     fh_theme = TextAreaField(u'Тема занятия')
-    fh_date = StringField(u'Дата')
-    fh_tstart = StringField(u'Начало')
-    fh_tend = StringField(u'Окончание')
+    fh_date = StringField(u'Дата', validators=[DataRequired()])
+    fh_tstart = StringField(u'Начало', validators=[DataRequired()])
+    fh_tend = StringField(u'Окончание', validators=[DataRequired()])
     fh_comment = TextAreaField(u'Доп. комментарий')
     fs_spisok = None
     sb_submit = SubmitField('Сохранить')
     sb_cancel = SubmitField('Назад')
-
 
     def __init__(self, current):
         super(ListFilterForm, self).__init__()
@@ -77,11 +80,11 @@ class ListFilterForm(FlaskForm):
         users_list = []
         for user in spis:
             _id = user.id
-            users_list.append(UserItem(_id, user.name, _id in pres,estim[_id] ,shtraf[_id], comment[_id], user.name))
+            users_list.append(UserItem(_id, user.name, _id in pres,estim[_id] ,shtraf[_id], comment[_id],
+                                       '1' in user.navigator, user.name))
         data = MyDict()
         data['items'] = users_list
         self.fs_spisok = UserListForm(data=data)
-
 
 
 

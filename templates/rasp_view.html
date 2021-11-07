@@ -7,21 +7,27 @@
 <form action="" method="post">
     {{ form_rasp.csrf_token() }}
     {{ form_rasp.hidden_tag() }}
-    <table border="0" cellpadding="4" cellspacing="2" width="100%">
-    <td width="100%" align="right">{{form_rasp.submit(class="butts")}}</td>
+    <table border="0" cellpadding="0" cellspacing="10" width="100%">
+        <tr>
+            <td width="100%" align="right">{{form_rasp.submit(class="flt_butts")}}</td>
+        </tr>
+        <tr>
+            <td align="right" width="100%">Найдено записей: {{ cnt }}</td>
+        </tr>
     </table>
     <hr>
-    <table border="0" cellpadding="4" cellspacing="2">
+    <table class="top_field" border="0" cellpadding="10" cellspacing="4" width="100%" >
         <tbody>{% for field in form_rasp if 'fr_' in field.name %}
         <tr>
-                <td align="left">{{ field.label(class="area") }}</td>
-                <td align="right">{{ field(class="list_fields") }}</td>
+            <td align="left">{{ field.label(class="area") }}</td>
+            <td align="right">{{ field(class="list_fields") }}</td>
         </tr>
         {% endfor %}
+
         </tbody>
     </table>
     <hr>
-    <p>Найдено записей: {{ cnt }}</p>
+
 </form>
 {% endblock %}
 
@@ -29,7 +35,7 @@
 <div class="col-md6 border rounded">
     <table border="1" cellspacing="1" cellpadding="4">
         <tbody>
-        <tr style="background-color: rgb(52, 73, 94); color: #ffffff">
+        <tr class="table_head">
             <th scope="col">День недели</th>
             <th scope="col">Начало</th>
             <th scope="col">Окончание</th>
@@ -39,7 +45,8 @@
             <th scope="col">Наименование учебного курса</th>
         </tr>
         {% for item in items%}
-        <tr {% if item.idDays % 2> 0 %} style="background-color: rgb(254, 255, 236);" {% endif %}">
+        <tr {% if item.idDays % 2> 0 %} style="background-color: rgb(254, 255, 236);"
+            {% else %} style="background-color: #fff;" {% endif %}>
             <td align="center">{{item.days.name}}</td>
             <td align="center">{{item.tstart}}</td>
             <td align="center">{{item.tend}}</td>

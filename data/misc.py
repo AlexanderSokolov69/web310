@@ -114,6 +114,7 @@ def journ_fill_month(*args, **kwargs):
                         db_sess.add(Journals(**new_r))
                         db_sess.commit()
 
+
 def journ_clear_month(*args, **kwargs):
     for rec in kwargs['journ']:
         if len(rec.name) < 9:
@@ -125,24 +126,39 @@ def journ_clear_month(*args, **kwargs):
                 db_sess.commit()
 
 
-"""
-    object = self.sender().objectName()
-    if object == 'tab4_del_journ':
-        del_cnt = 0
-        id_select = []
-        for index in self.tab4_journ_view.selectedIndexes():
-            if index.column() == Const.JRN_DATE:
-                if len(self.journ.cache[index.row()][Const.JRN_THEME].strip()) < 9:
-                    id = self.journ.cache[index.row()][Const.JRN_ID]
-                    self.journ.rec_delete(id)
-                    del_cnt += 1
-                else:
-                    self.message_out.emit(
-                        f"Невозможно удалить запись журнала: "
-                        f"'{self.journ.cache[index.row()][Const.JRN_THEME].strip()}'")
-        if del_cnt:
-            self.journ_update()
-"""
+class Checker():
+    def __init__(self, flag=True):
+        self.flag = flag
+
+    def time(self, field):
+        try:
+            l, r = field.split(':')
+            ret = f"{int(l):02}:{int(r):02}"
+            self.flag = any([6 < int(l) < 22, 0 <= int(r) < 60])
+            return Checker(self.flag)
+        except Exception:
+            return Checker(False)
+
+    def date_us(self, field):
+        try:
+            y, m, d = field.split('-')
+            dd = f"{int(y)}-{int(m)}-{int(d)}"
+            self.flag = all([int(y) > 2019, 0 < int(m) < 13, 0 < int(d) < 32])
+            dd = datetime.date(y, m, d)
+            return Checker(self.flag)
+        except Exception:
+            return Checker(False)
+
+    def date_ru(self, field):
+        try:
+            d, m, y = field.split('.')
+            dd = f"{int(y)}.{int(m)}.{int(d)}"
+            self.flag = all([int(y) > 2019, 0 < int(m) < 13, 0 < int(d) < 32])
+            dd = datetime.date(y, m, d)
+            return Checker(self.flag)
+        except Exception:
+            return Checker(False)
+
 
 if __name__ == '__main__':
     d = MyDict(attr='32')

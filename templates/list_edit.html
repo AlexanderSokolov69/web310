@@ -11,6 +11,8 @@
             <td><h2>Лист журнала</h2></td>
             <td align="right">{{form.sb_submit(class="butts")}} {{form.sb_cancel(class="butts")}}</td>
         </tr>
+        <tr><a class="main_head">Группа: {{groupname}}</a>
+        </tr>
         </tbody>
     </table>
 
@@ -19,12 +21,17 @@
         <tbody>{% for field in form if ('fh_' in field.name) %}
         <tr>
             <td align="left" width="20%">{{ field.label(class="area") }}</td>
-            <td align="right">{{ field(class="area", cols="50", rows="3", size=10) }}</td>
+            <td align="right">{{ field(class="area", cols="50", rows="3", size=15) }}</td>
         </tr>
         {% endfor %}
         </tbody>
     </table>
     <hr>
+    {% for field, errors in form.errors.items() %}
+    <small class="form-text text-muted ">
+        {{ ', '.join(errors) }}
+    </small>
+    {% endfor %}
     {{ form.csrf_token() }}
     {{ form.hidden_tag() }}
 
@@ -44,7 +51,11 @@
                 <th scope="col">Комментарии</th>
             </tr>
             {% for field in form.fs_spisok.items if (field.name != "csrf_token") %}
+            {% if field.navigator.data %}
             <tr class="list_fields">
+                {% else %}
+            <tr class="list_fields" style="color: red;">
+                {% endif %}
                 <td align="center">{{ loop.index }}</td>
                 <td align="left">{{ field.data.fio }}</td>
                 <td align="center">{{ field.present(class="list_check") }}</td>

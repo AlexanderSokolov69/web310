@@ -16,7 +16,8 @@ from data.db_class_priv import Priv
 from data.db_class_rasp import Rasp
 from data.db_class_roles import Roles
 from data.db_class_users import Users
-from data.misc import MyDict, date_us_ru, date_ru_us, journ_fill_month, journ_clear_month
+from data.db_session import SqlAlchemyBase
+from data.misc import MyDict, date_us_ru, date_ru_us, journ_fill_month, journ_clear_month, Checker
 from forms.f_journ import JournFilterForm
 from forms.f_list_journ import ListFilterForm
 from forms.f_new_rasp import NewRasp
@@ -32,7 +33,10 @@ login_manager.init_app(app)
 
 @app.teardown_appcontext
 def shutdown_session(exception=None):
+
     pass
+
+    #db_session.remove()
 
 
 @app.errorhandler(404)
@@ -110,11 +114,11 @@ def jorn_add(id_rec):
 def jorn_edit(id_rec):
     with db_session.create_session() as db_sess:
         current = db_sess.query(Journals).get(id_rec)
+        groupname = f"{current.groups.name.strip()} {current.groups.comment}"
     form = ListFilterForm(current)
-#    for rec in form.fs_spisok:
-#        print(rec)
     if form.validate_on_submit():
-        if form.sb_submit.data:
+        if form.sb_submit.data and Checker().time(form.fh_tstart.raw_data[0]).\
+                time(form.fh_tend.raw_data[0]).date_ru(form.fh_date.raw_data[0]).flag:
             present = []
             estim = []
             shtraf = []
@@ -145,7 +149,7 @@ def jorn_edit(id_rec):
                     current.comment = form.fh_comment.raw_data[0].strip()
                     db_sess.commit()
         return redirect("/journ")
-    return render_template("list_edit.html", form=form)
+    return render_template("list_edit.html", form=form, groupname=groupname)
 
 
 @app.route('/journ/delete/<int:id_rec>', methods=['GET'])
