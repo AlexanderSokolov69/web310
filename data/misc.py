@@ -19,7 +19,7 @@ class MyDict(dict):
         res = []
         for k in self.keys():
             res.append(f"{k}: {self[k]}")
-        return '\n'.join(res)
+        return f"<MyDict({' | '.join(res)})"
 
 
 def spis_to_dic(spis):  # format: "int='comment' int='comment' ..."
@@ -84,15 +84,16 @@ def get_days_list(days: dict, mon=9):
     ret = []
     oneday = datetime.timedelta(1)
     while d1 < d2:
-        for day in days:
+        for day in days.values():
             if (d1.weekday() + 1) == day[0]:
                 ret.append([str(d1), day[1:]])
         d1 += oneday
     return ret
 
 
-def journ_add(*args, **kwargs):
+def journ_fill_month(*args, **kwargs):
         month = kwargs['month']
+        idGroups = kwargs['idGroups']
         rasp = kwargs['rasp']
         journ = kwargs['journ']
         list_days = MyDict()
@@ -100,18 +101,28 @@ def journ_add(*args, **kwargs):
             for i, item in enumerate(rasp):
                 list_days[item.idDays] = [item.idDays, item.tstart, item.tend]
             list_days = get_days_list(list_days, month)
-            test = [] if journ.count() == 0 else [day.data for day in journ]
+            test = [] if len(journ) == 0 else [(date_ru_us(day.date), day.tstart) for day in journ]
             for rec in list_days:
-                if rec[0] not in test:
-                    arg = MyDict()
-                    arg['idGroups'] = rasp[0].idGroups
-                    arg['date'] = rec[0]
-                    arg['name'] = 'Тема...'
-                    arg['tstart'] = rec[1]
-                    arg['tend'] = rec[2]
+                if (rec[0], rec[1][0]) not in test:
+                    new_r = {}
+                    new_r['idGroups'] = idGroups
+                    new_r['date'] = rec[0]
+                    new_r['name'] = 'Тема...'
+                    new_r['tstart'] = rec[1][0]
+                    new_r['tend'] = rec[1][1]
                     with db_session.create_session() as db_sess:
-                        db_sess.append(Journals(arg))
+                        db_sess.add(Journals(**new_r))
                         db_sess.commit()
+
+def journ_clear_month(*args, **kwargs):
+    for rec in kwargs['journ']:
+        if len(rec.name) < 9:
+            if Const.TEST_MODE:
+                print('DELETE', rec)
+            with db_session.create_session() as db_sess:
+                to_del = db_sess.query(Journals).get(rec.id)
+                db_sess.delete(to_del)
+                db_sess.commit()
 
 
 """

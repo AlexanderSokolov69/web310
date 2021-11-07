@@ -17,7 +17,7 @@ class NewRasp(FlaskForm):
     idDays = SelectField(u'День недели:', coerce=int)
     tstart = StringField(u'Начало:')
     tend = StringField(u'Окончание:')
-    name = StringField(u'Наименвание:')
+    name = StringField(u'Наименование:')
     comment = StringField(u'Доп.информация:')
     bb_submit = SubmitField(u'Сохранить')
     bb_cancel = SubmitField(u'Отменить')

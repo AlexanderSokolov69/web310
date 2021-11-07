@@ -16,7 +16,7 @@ from data.db_class_priv import Priv
 from data.db_class_rasp import Rasp
 from data.db_class_roles import Roles
 from data.db_class_users import Users
-from data.misc import MyDict, date_us_ru, date_ru_us
+from data.misc import MyDict, date_us_ru, date_ru_us, journ_fill_month, journ_clear_month
 from forms.f_journ import JournFilterForm
 from forms.f_list_journ import ListFilterForm
 from forms.f_new_rasp import NewRasp
@@ -33,8 +33,6 @@ login_manager.init_app(app)
 @app.teardown_appcontext
 def shutdown_session(exception=None):
     pass
-    # print(exception)
-#    db_session.orm.close_all_sessions()
 
 
 @app.errorhandler(404)
@@ -84,10 +82,10 @@ def rasp_add(id_rec):
 @login_required
 def rasp_delete(id_rec):
     with db_session.create_session() as db_sess:
-        rasp = db_sess.query(Rasp).get(id_rec)
-        # if not ('Новая' in rasp.name):
-        db_sess.delete(rasp)
-        db_sess.commit()
+        if rasp := db_sess.query(Rasp).get(id_rec):
+            # if not ('Новая' in rasp.name):
+            db_sess.delete(rasp)
+            db_sess.commit()
     return redirect("/journ")
 
 
@@ -154,10 +152,10 @@ def jorn_edit(id_rec):
 @login_required
 def jorn_delete(id_rec):
     with db_session.create_session() as db_sess:
-        journ = db_sess.query(Journals).get(id_rec)
-        if not(journ.name and len(journ.name.strip()) > 8):
-            db_sess.delete(journ)
-            db_sess.commit()
+        if journ := db_sess.query(Journals).get(id_rec):
+            if not(journ.name and len(journ.name.strip()) > 8):
+                db_sess.delete(journ)
+                db_sess.commit()
     return redirect("/journ")
 
 
@@ -166,19 +164,17 @@ def jorn_delete(id_rec):
 def journ_view():
     form = JournFilterForm()
     dat = form.rasp
+    cnt = dat.count()
+    journ = []
     with db_session.create_session() as db_sess:
         fjourn = db_sess.query(Journals).join(Groups).join(Courses).\
             filter(Groups.idUsers == current_user.id, Courses.year == Const.YEAR).\
             order_by(Journals.date, Journals.tstart)
-        if form.validate_on_submit():
-            session['ff_groups'] = form.ff_groups.data
-            session['ff_month'] = form.ff_month.data
         if form.ff_groups.data != 0:
             dat = dat.filter(Groups.id == form.ff_groups.data)
             fjourn = fjourn.filter(Groups.id == form.ff_groups.data)
         if form.ff_month.data != 0:
             fjourn = fjourn.filter(extract('month', Journals.date) == form.ff_month.data)
-        journ = []
         for rec in fjourn:
             new = MyDict()
             new = MyDict(id=rec.id, date=date_us_ru(rec.date), tstart=rec.tstart, tend=rec.tend,
@@ -188,33 +184,25 @@ def journ_view():
                          gruppa=f"{'' if not rec.groups.name else rec.groups.name.strip()} "
                                 f"{'' if not rec.groups.comment else rec.groups.comment.strip()}")
             journ.append(new)
-    return render_template("journ_view.html", form=form, spis=dat, journ=journ)
-
-
-@app.route('/rasp', methods=['GET', 'POST'])
-@login_required
-def free_view():
-    with db_session.create_session() as db_sess:
-        rsp = db_sess.query(Rasp).join(Groups).join(Users).order_by(Rasp.idDays, Rasp.tstart, Rasp.idKabs)
-    form = RaspFilterForm()
-    dat = rsp
     if form.validate_on_submit():
-        #    if request.method == 'POST':
-        if form.fr_users.data != 0:
-            dat = dat.filter(Groups.idUsers == form.fr_users.data)
-        if form.fr_weekday.data != 0:
-            dat = dat.filter(Rasp.idDays == form.fr_weekday.data)
-        if form.fr_kabinet.data != 0:
-            dat = dat.filter(Rasp.idKabs == form.fr_kabinet.data)
-        if form.fr_course.data != 0:
-            dat = dat.filter(Groups.idCourses == form.fr_course.data)
-    cnt = dat.count()
-    return render_template("rasp_view_free.html", items=dat, form=form, cnt=cnt)
+        if form.submit.data:
+            session['ff_groups'] = form.ff_groups.data
+            session['ff_month'] = form.ff_month.data
+        elif form.fill_add.data:
+            journ_fill_month(month=form.ff_month.data, idGroups=form.ff_groups.data, rasp=dat, journ=journ)
+            return redirect('/journ')
+        elif form.fill_del.data:
+            journ_clear_month(journ=journ)
+            return redirect('/journ')
+    return render_template("journ_view.html", form=form, spis=dat, journ=journ, cnt=cnt)
 
 
 @app.route('/', methods=['GET', 'POST'])
 def base():
-    return render_template("empty.html")
+    if current_user and current_user.is_authenticated:
+        return redirect('/journ')
+    else:
+        return redirect('/main')
 
 
 @app.route('/login', methods=['GET', 'POST'])
@@ -235,9 +223,7 @@ def login():
 
 
 @app.route("/main", methods=['GET', 'POST'])
-@login_required
 def index():
-    #    if request.method == 'GET':
     with db_session.create_session() as db_sess:
         rsp = db_sess.query(Rasp).join(Groups).join(Users).order_by(Rasp.idDays, Rasp.tstart, Rasp.idKabs)
     form_rasp = RaspFilterForm()
@@ -247,7 +233,6 @@ def index():
         session['fr_weekday'] = form_rasp.fr_weekday.data
         session['fr_kabinet'] = form_rasp.fr_kabinet.data
         session['fr_course'] = form_rasp.fr_course.data
-        #    if request.method == 'POST':
     if form_rasp.fr_users.data != 0:
         dat = dat.filter(Groups.idUsers == form_rasp.fr_users.data)
     if form_rasp.fr_weekday.data != 0:
@@ -256,8 +241,8 @@ def index():
         dat = dat.filter(Rasp.idKabs == form_rasp.fr_kabinet.data)
     if form_rasp.fr_course.data != 0:
         dat = dat.filter(Groups.idCourses == form_rasp.fr_course.data)
-    # print('goto /main')
-    return render_template("rasp_view.html", items=dat, form_rasp=form_rasp)
+    cnt = dat.count()
+    return render_template("rasp_view.html", items=dat, form_rasp=form_rasp, cnt=cnt)
 
 
 @app.route('/register', methods=['GET', 'POST'])
@@ -296,11 +281,27 @@ def base_view():
     return render_template('empty.html')
 
 
-@app.route("/rasp")
-def rasp_view():
+@app.route("/rasp_free", methods=['GET', 'POST'])
+def index_free():
     with db_session.create_session() as db_sess:
-        rsp = db_sess.query(Rasp).order_by(Rasp.idDays, Rasp.tstart, Rasp.idKabs).all()
-    return render_template("rasp_view_free.html", items=rsp)
+        rsp = db_sess.query(Rasp).join(Groups).join(Users).order_by(Rasp.idDays, Rasp.tstart, Rasp.idKabs)
+    form_rasp = RaspFilterForm()
+    dat = rsp
+    if  request.method == 'POST' and form_rasp.validate_on_submit():
+        session['fr_users'] = form_rasp.fr_users.data
+        session['fr_weekday'] = form_rasp.fr_weekday.data
+        session['fr_kabinet'] = form_rasp.fr_kabinet.data
+        session['fr_course'] = form_rasp.fr_course.data
+    if form_rasp.fr_users.data != 0:
+        dat = dat.filter(Groups.idUsers == form_rasp.fr_users.data)
+    if form_rasp.fr_weekday.data != 0:
+        dat = dat.filter(Rasp.idDays == form_rasp.fr_weekday.data)
+    if form_rasp.fr_kabinet.data != 0:
+        dat = dat.filter(Rasp.idKabs == form_rasp.fr_kabinet.data)
+    if form_rasp.fr_course.data != 0:
+        dat = dat.filter(Groups.idCourses == form_rasp.fr_course.data)
+    cnt = dat.count()
+    return render_template("rasp_view_free.html", items=dat, form_rasp=form_rasp, cnt=cnt)
 
 
 def main():

@@ -14,7 +14,6 @@ from .db_session import SqlAlchemyBase
 
 class Journals(SqlAlchemyBase, SerializerMixin):
     __tablename__ = 'journals'
-
     id = Column(Integer, primary_key=True, autoincrement=True)
     idGroups = Column(Integer, ForeignKey(Groups.id))
     date = Column(String, nullable=True)
@@ -28,3 +27,20 @@ class Journals(SqlAlchemyBase, SerializerMixin):
     comment = Column(String, nullable=True)
     groups = relationship(Groups)
 
+    def __init__(self, *args, **kwargs):
+        super(Journals, self).__init__()
+        try:
+            self.idGroups = kwargs['idGroups']
+            self.date = kwargs['date']
+            self.tstart = kwargs.get('tstart', '08:00')
+            self.tend = kwargs.get('tend', '09:30')
+            self.name = kwargs.get('name', 'Новая тема')
+            self.present = kwargs.get('present', '')
+            self.estim = kwargs.get('estim', '')
+            self.shtraf = kwargs.get('shtraf', '')
+            self.usercomm = kwargs.get('usercomm', '')
+            self.comment = kwargs.get('comment', '')
+        except KeyError as err:
+            if Const.TEST_MODE:
+                print(err)
+                raise KeyError

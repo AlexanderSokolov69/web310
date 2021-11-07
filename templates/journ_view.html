@@ -11,40 +11,47 @@
             {% if form.fill_flag %}
             {{form.fill_add(class="butts")}} {{form.fill_del(class="butts")}}
             {% else %}
-            Установите фильтр
+            <a style="color: red;">Установите фильтр</a>
             {% endif %}
         </td>
-    <td align="right">{{form.submit(class="butts")}}</td>
+        <td align="right">{{form.submit(class="butts")}}</td>
     </table>
     <hr>
     <table border="0" cellpadding="4" cellspacing="2" width="80%">
         <tbody>{% for field in form if 'ff_' in field.name %}
         <tr>
-                <td align="left">{{ field.label(class="area") }}</td>
-                <td align="right">{{ field(class="list_fields") }}</td>
+            <td align="left">{{ field.label(class="area") }}</td>
+            <td align="right">{{ field(class="list_fields") }}</td>
         </tr>
         {% endfor %}
         </tbody>
     </table>
     <hr>
     <p></p>
-    <h2>Расписание занятий</h2>
-    <div style=" height: 500px; overflow-y: scroll;">
-    <table class="list_fields" border="1" cellpadding="6" cellspacing="2">
+    <table class="list_fields" border="0" cellpadding="6" cellspacing="2" width="800%">
         <tbody>
-        {% for rsp in spis %}
         <tr>
-            <td width="60px" align="center"><a style="color: blue;" href="/rasp/add/{{rsp.id}}">[+]</a>
-                <a style="color: red;" href="/rasp/delete/{{rsp.id}}">[X]</a></td>
+            <td align="left"><h2>Расписание занятий</h2></td>
+            <td align="right">Найдено записей:{{ cnt }}</td>
+        </tr>
+        </tbody>
+    </table>
+    <div style=" height: 500px; overflow-y: scroll;">
+        <table class="list_fields" border="1" cellpadding="6" cellspacing="2">
+            <tbody>
+            {% for rsp in spis %}
+            <tr>
+                <td width="60px" align="center"><a style="color: blue;" href="/rasp/add/{{rsp.id}}">[+]</a>
+                    <a style="color: red;" href="/rasp/delete/{{rsp.id}}">[X]</a></td>
                 <td align="left">{{ rsp.days.name }}</td>
                 <td align="center" style="background-color: rgb{{rsp.kabs.color}}">{{ rsp.kabs.name }}</td>
                 <td align="center">{{ rsp.tstart }}</td>
                 <td align="center">{{ rsp.tend }}</td>
-                <td align="center" width="">{{rsp.groups.name}}  {{rsp.groups.comment}}</td>
-        </tr>
-        {% endfor %}
-        </tbody>
-    </table>
+                <td align="center" width="">{{rsp.groups.name}} {{rsp.groups.comment}}</td>
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
     </div>
 
 </form>
