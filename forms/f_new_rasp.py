@@ -1,4 +1,4 @@
-from flask import session
+from flask import session, flash
 from flask_login import current_user
 from flask_wtf import FlaskForm
 from wtforms import PasswordField, StringField, SubmitField, BooleanField, SelectField, FieldList
@@ -24,20 +24,36 @@ class NewRasp(FlaskForm):
 
     def __init__(self, *args, **kwargs):
         super(NewRasp, self).__init__(*args, **kwargs)
-        with db_session.create_session() as db_sess:
-            grps = db_sess.query(Groups).join(Courses).\
-                filter(Groups.idUsers == current_user.id, Courses.year == Const.YEAR).\
-                order_by(Groups.name)
-            self.idGroups.choices = [(rec.id, rec.name) for rec in grps]
-            self.idGroups.data = kwargs.get('idGroups', 0)
-            # Кабинет
-            kabs = db_sess.query(Kabs).order_by(Kabs.id)
-            self.idKabs.choices = [(g.id, u"%s" % f'{g.name}') for g in kabs]
-            self.idKabs.data = kwargs.get('idKabs', 0)
-            # День недели
-            week_day = db_sess.query(Days).order_by(Days.id)
-            self.idDays.choices = [(g.id, u"%s" % f'{g.name}') for g in week_day]
-            self.idDays.data = kwargs.get('idDays', 0)
+        try:
+            with db_session.create_session() as db_sess:
+                try:
+                    grps = db_sess.query(Groups).join(Courses).\
+                        filter(Groups.idUsers == current_user.id, Courses.year == Const.YEAR).\
+                        order_by(Groups.name)
+                except Exception as err:
+                    grps = None
+                    flash(f"Ошибка обработки SQL", category='error')
+                self.idGroups.choices = [(rec.id, rec.name) for rec in grps]
+                self.idGroups.data = kwargs.get('idGroups', 0)
+                # Кабинет
+                try:
+                    kabs = db_sess.query(Kabs).order_by(Kabs.id)
+                except Exception as err:
+                    kabs = None
+                    flash(f"Ошибка обработки SQL", category='error')
+                self.idKabs.choices = [(g.id, u"%s" % f'{g.name}') for g in kabs]
+                self.idKabs.data = kwargs.get('idKabs', 0)
+                # День недели
+                try:
+                    week_day = db_sess.query(Days).order_by(Days.id)
+                except Exception as err:
+                    week_day = None
+                    flash(f"Ошибка обработки SQL", category='error')
+                self.idDays.choices = [(g.id, u"%s" % f'{g.name}') for g in week_day]
+                self.idDays.data = kwargs.get('idDays', 0)
+        except Exception as err:
+            db_sess = None
+            flash(f"Ошибка обработки SQL", category='error')
         self.tstart.data = kwargs.get('tstart', '')
         self.tend.data = kwargs.get('tend', '')
         self.name.data = kwargs.get('name', '')

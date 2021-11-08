@@ -1,4 +1,4 @@
-from flask import session
+from flask import session, flash
 from flask_wtf import FlaskForm
 from wtforms import PasswordField, StringField, SubmitField, BooleanField, SelectField, FieldList
 from wtforms.validators import DataRequired
@@ -22,37 +22,57 @@ class RaspFilterForm(FlaskForm):
 
     def __init__(self, *args, **kwargs):
         super(RaspFilterForm, self).__init__(*args, **kwargs)
-        with db_session.create_session() as db_sess:
-            # Users
-            users = db_sess.query(Users).join(Roles).join(Priv).filter(Priv.access.like(Const.ACC_PREPOD)).\
-                order_by(Users.name).all()
-            self.fr_users.choices = [(g.id, u"%s" % f'{g.name}') for g in users]
-            self.fr_users.choices.insert(0, (0, u"Не выбрана"))
-            if self.fr_users.data is not None:
-                self.fr_users.default = self.fr_users.data
-            else:
-                self.fr_users.data = session.get('fr_users', 0)
-            # День недели
-            week_day = db_sess.query(Days).order_by(Days.id).all()
-            self.fr_weekday.choices = [(g.id, u"%s" % f'{g.name}') for g in week_day]
-            self.fr_weekday.choices.insert(0, (0, u"Не выбран"))
-            if self.fr_weekday.data is not None:
-                self.fr_weekday.default = self.fr_weekday.data
-            else:
-                self.fr_weekday.data = session.get('fr_weekday', 0)
-            # Кабинет
-            kabs = db_sess.query(Kabs).order_by(Kabs.id).all()
-            self.fr_kabinet.choices = [(g.id, u"%s" % f'{g.name}') for g in kabs]
-            self.fr_kabinet.choices.insert(0, (0, u"Не выбран"))
-            if self.fr_kabinet.data is not None:
-                self.fr_kabinet.default = self.fr_kabinet.data
-            else:
-                self.fr_kabinet.data = session.get('fr_kabinet', 0)
-            # Кабинет
-            courses = db_sess.query(Courses).order_by(Courses.name).filter(Courses.year == Const.YEAR).all()
-            self.fr_course.choices = [(g.id, u"%s" % f'{g.name[:40:1]}') for g in courses]
-            self.fr_course.choices.insert(0, (0, u"Не выбран"))
-            if self.fr_course.data is not None:
-                self.fr_course.default = self.fr_course.data
-            else:
-                self.fr_course.data = session.get('fr_course', 0)
+        try:
+            with db_session.create_session() as db_sess:
+                # Users
+                try:
+                    users = db_sess.query(Users).join(Roles).join(Priv).filter(Priv.access.like(Const.ACC_PREPOD)).\
+                        order_by(Users.name).all()
+                except Exception as err:
+                    users = None
+                    flash(f"Ошибка обработки SQL", category='error')
+                self.fr_users.choices = [(g.id, u"%s" % f'{g.name}') for g in users]
+                self.fr_users.choices.insert(0, (0, u"Не выбрана"))
+                if self.fr_users.data is not None:
+                    self.fr_users.default = self.fr_users.data
+                else:
+                    self.fr_users.data = session.get('fr_users', 0)
+                # День недели
+                try:
+                    week_day = db_sess.query(Days).order_by(Days.id).all()
+                except Exception as err:
+                    week_day = None
+                    flash(f"Ошибка обработки SQL", category='error')
+                self.fr_weekday.choices = [(g.id, u"%s" % f'{g.name}') for g in week_day]
+                self.fr_weekday.choices.insert(0, (0, u"Не выбран"))
+                if self.fr_weekday.data is not None:
+                    self.fr_weekday.default = self.fr_weekday.data
+                else:
+                    self.fr_weekday.data = session.get('fr_weekday', 0)
+                # Кабинет
+                try:
+                    kabs = db_sess.query(Kabs).order_by(Kabs.id).all()
+                except Exception as err:
+                    kabs = None
+                    flash(f"Ошибка обработки SQL", category='error')
+                self.fr_kabinet.choices = [(g.id, u"%s" % f'{g.name}') for g in kabs]
+                self.fr_kabinet.choices.insert(0, (0, u"Не выбран"))
+                if self.fr_kabinet.data is not None:
+                    self.fr_kabinet.default = self.fr_kabinet.data
+                else:
+                    self.fr_kabinet.data = session.get('fr_kabinet', 0)
+                # Кабинет
+                try:
+                    courses = db_sess.query(Courses).order_by(Courses.name).filter(Courses.year == Const.YEAR).all()
+                except Exception as err:
+                    courses = None
+                    flash(f"Ошибка обработки SQL", category='error')
+                self.fr_course.choices = [(g.id, u"%s" % f'{g.name[:40:1]}') for g in courses]
+                self.fr_course.choices.insert(0, (0, u"Не выбран"))
+                if self.fr_course.data is not None:
+                    self.fr_course.default = self.fr_course.data
+                else:
+                    self.fr_course.data = session.get('fr_course', 0)
+        except Exception as err:
+            db_sess = None
+            flash(f"Ошибка обработки SQL", category='error')

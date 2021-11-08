@@ -1,6 +1,6 @@
 from collections import namedtuple
 
-from flask import session
+from flask import session, flash
 from flask_login import current_user
 from flask_wtf import FlaskForm
 from werkzeug.datastructures import MultiDict
@@ -63,10 +63,13 @@ class ListFilterForm(FlaskForm):
         estim = spis_to_dic(current.estim)
         shtraf = spis_to_dic(current.shtraf)
         comment = spis_to_dic(current.usercomm)
-
-        with db_session.create_session() as db_sess:
-            spis = db_sess.query(Users).join(GroupTable, GroupTable.idUsers == Users.id).\
-                   filter(current.idGroups == GroupTable.idGroups).order_by(Users.name).all()
+        try:
+            with db_session.create_session() as db_sess:
+                spis = db_sess.query(Users).join(GroupTable, GroupTable.idUsers == Users.id).\
+                       filter(current.idGroups == GroupTable.idGroups).order_by(Users.name).all()
+        except Exception as err:
+            spis = None
+            flash(f"Ошибка обработки SQL", category='error')
 
         users_list = []
         for user in spis:

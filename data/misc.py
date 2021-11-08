@@ -1,5 +1,7 @@
 import datetime
 
+from flask import flash
+
 from data import db_session
 from data.cl_const import Const
 from data.db_class_journals import Journals
@@ -43,8 +45,7 @@ def date_us_ru(data):
         try:
             ret = f"{int(data[8:10:1]):02}.{int(data[5:7:1]):02}.{int(data[0:4:1]):04}"
         except ValueError:
-            pass
-            # print('error in date_us_ru(data)')
+            flash(f"Ошибка конвертации даты: {data}", category='error')
     return ret
 
 
@@ -64,8 +65,7 @@ def date_ru_us(data):
                 tst = f"01.01.20{int(tst):02}"
             ret = f"{int(tst[6:10:1]):04}-{int(tst[3:5:1]):02}-{int(tst[0:2:1]):02}"
         except ValueError:
-            pass
-            # print('error in date_ru_us(data)')
+            flash(f"Ошибка конвертации даты: {tst}", category='error')
     return ret
 
 
@@ -97,6 +97,7 @@ def journ_fill_month(*args, **kwargs):
         rasp = kwargs['rasp']
         journ = kwargs['journ']
         list_days = MyDict()
+        cnt = 0
         if rasp.count() > 0:
             for i, item in enumerate(rasp):
                 list_days[item.idDays] = [item.idDays, item.tstart, item.tend]
@@ -110,20 +111,36 @@ def journ_fill_month(*args, **kwargs):
                     new_r['name'] = 'Тема...'
                     new_r['tstart'] = rec[1][0]
                     new_r['tend'] = rec[1][1]
-                    with db_session.create_session() as db_sess:
-                        db_sess.add(Journals(**new_r))
-                        db_sess.commit()
+                    try:
+                        with db_session.create_session() as db_sess:
+                            db_sess.add(Journals(**new_r))
+                            db_sess.commit()
+                            cnt += 1
+                    except Exception as err:
+                        group = None
+                        flash(f"Ошибка обработки SQL", category='error')
+        flash(f"Добавлено записей: {cnt}", category='success')
 
 
 def journ_clear_month(*args, **kwargs):
+    cnt = 0
     for rec in kwargs['journ']:
         if len(rec.name) < 9:
-            if Const.TEST_MODE:
-                print('DELETE', rec)
-            with db_session.create_session() as db_sess:
-                to_del = db_sess.query(Journals).get(rec.id)
-                db_sess.delete(to_del)
-                db_sess.commit()
+            try:
+                if len(rec.present.split()) == 0:
+                    raise IndexError
+                flash(f"Есть отметки о посещении {rec.date}", category='error')
+            except Exception:
+                if Const.TEST_MODE:
+                    print('DELETE', rec)
+                with db_session.create_session() as db_sess:
+                    to_del = db_sess.query(Journals).get(rec.id)
+                    db_sess.delete(to_del)
+                    db_sess.commit()
+                    cnt += 1
+        else:
+            flash(f"Тема не пустая: {rec.name}", category='error')
+    flash(f"Удалено записей: {cnt}", category='success')
 
 
 class Checker():
@@ -135,9 +152,11 @@ class Checker():
             l, r = field.split(':')
             ret = f"{int(l):02}:{int(r):02}"
             self.flag = any([6 < int(l) < 22, 0 <= int(r) < 60])
+            if not self.flag:
+                flash(f"Ошибка в диапазоне [00:00]: {field}", category='error')
             return Checker(self.flag)
         except Exception:
-            print('time', field)
+            flash(f"Ошибка в формате [00:00]: {field}", category='error')
             return Checker(False)
 
     def date_us(self, field):
@@ -146,9 +165,11 @@ class Checker():
             dd = f"{int(y)}-{int(m)}-{int(d)}"
             self.flag = all([int(y) > 2019, 0 < int(m) < 13, 0 < int(d) < 32])
             dd = datetime.date(int(y), int(m), int(d))
+            if not self.flag:
+                flash(f"Ошибка в диапазоне даты: {field}", category='error')
             return Checker(self.flag)
         except Exception:
-            print('date_us', field)
+            flash(f"Ошибка в формате [0000-00-00]: {field}", category='error')
             return Checker(False)
 
     def date_ru(self, field):
@@ -157,9 +178,11 @@ class Checker():
             dd = f"{int(y)}.{int(m)}.{int(d)}"
             self.flag = all([int(y) > 2019, 0 < int(m) < 13, 0 < int(d) < 32])
             dd = datetime.date(int(y), int(m), int(d))
+            if not self.flag:
+                flash(f"Ошибка в диапазоне даты: {field}", category='error')
             return Checker(self.flag)
         except Exception:
-            print('date_ru', field)
+            flash(f"Ошибка в формате [00.00.0000]: {field}", category='error')
             return Checker(False)
 
 

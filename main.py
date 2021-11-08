@@ -1,6 +1,6 @@
 import pyodbc
 import datetime
-from flask import Flask, render_template, request, make_response, session, jsonify
+from flask import Flask, render_template, request, make_response, session, jsonify, flash
 from flask_login import LoginManager, login_user, logout_user, login_required, current_user
 from flask_wtf import FlaskForm
 from sqlalchemy import extract
@@ -53,8 +53,16 @@ def not_found(error):
 
 @login_manager.user_loader
 def load_user(user_id):
-    with db_session.create_session() as db_sess:
-        ret = db_sess.query(Users).get(user_id)
+    try:
+        with db_session.create_session() as db_sess:
+            try:
+                ret = db_sess.query(Users).get(user_id)
+            except Exception as err:
+                ret = None
+                flash(f"Ошибка обработки SQL", category='error')
+    except Exception as err:
+        ret = None
+        flash(f"Ошибка обработки SQL", category='error')
     return ret
 
 
@@ -62,23 +70,31 @@ def load_user(user_id):
 @login_required
 def rasp_add(id_rec):
     with db_session.create_session() as db_sess:
-        curr = db_sess.query(Rasp).get(id_rec)
+        try:
+            curr = db_sess.query(Rasp).get(id_rec)
+        except Exception as err:
+            curr = None
+            flash(f"Ошибка обработки SQL", category='error')
     form = NewRasp(idGroups=curr.idGroups, idKabs=curr.idKabs, idDays=curr.idDays, tstart=curr.tstart,
                    tend=curr.tend, name='Новая', comment='')
     if form.validate_on_submit():
         if form.bb_submit.data:
             with db_session.create_session() as db_sess:
-                curr = db_sess.query(Rasp).get(id_rec)
-                rasp = Rasp()
-                rasp.idGroups = form.idGroups.raw_data[0]
-                rasp.idKabs = form.idKabs.raw_data[0]
-                rasp.idDays = form.idDays.raw_data[0]
-                rasp.tstart = form.tstart.raw_data[0]
-                rasp.tend = form.tend.raw_data[0]
-                rasp.name = form.name.raw_data[0]
-                rasp.comment = form.comment.raw_data[0]
-                db_sess.add(rasp)
-                db_sess.commit()
+                try:
+                    curr = db_sess.query(Rasp).get(id_rec)
+                    rasp = Rasp()
+                    rasp.idGroups = form.idGroups.raw_data[0]
+                    rasp.idKabs = form.idKabs.raw_data[0]
+                    rasp.idDays = form.idDays.raw_data[0]
+                    rasp.tstart = form.tstart.raw_data[0]
+                    rasp.tend = form.tend.raw_data[0]
+                    rasp.name = form.name.raw_data[0]
+                    rasp.comment = form.comment.raw_data[0]
+                    db_sess.add(rasp)
+                    db_sess.commit()
+                    flash('Запись добавлена', category='success')
+                except Exception as err:
+                    flash(f"Ошибка обработки SQL", category='error')
         return redirect("/journ")
     return render_template("rasp_add.html", form=form)
 
@@ -87,10 +103,13 @@ def rasp_add(id_rec):
 @login_required
 def rasp_delete(id_rec):
     with db_session.create_session() as db_sess:
-        if rasp := db_sess.query(Rasp).get(id_rec):
-            # if not ('Новая' in rasp.name):
-            db_sess.delete(rasp)
-            db_sess.commit()
+        try:
+            if rasp := db_sess.query(Rasp).get(id_rec):
+                db_sess.delete(rasp)
+                db_sess.commit()
+                flash('Запись удалена', category='success')
+        except Exception as err:
+            flash(f"Ошибка обработки SQL", category='error')
     return redirect("/journ")
 
 
@@ -98,15 +117,19 @@ def rasp_delete(id_rec):
 @login_required
 def jorn_add(id_rec):
     with db_session.create_session() as db_sess:
-        curr = db_sess.query(Journals).get(id_rec)
-        journ = Journals()
-        journ.date = curr.date
-        journ.idGroups = curr.idGroups
-        journ.tstart = curr.tstart
-        journ.tend = curr.tend
-        journ.name = curr.name
-        db_sess.add(journ)
-        db_sess.commit()
+        try:
+            curr = db_sess.query(Journals).get(id_rec)
+            journ = Journals()
+            journ.date = curr.date
+            journ.idGroups = curr.idGroups
+            journ.tstart = curr.tstart
+            journ.tend = curr.tend
+            journ.name = curr.name
+            db_sess.add(journ)
+            db_sess.commit()
+            flash('Запись добавлена', category='success')
+        except Exception as err:
+            flash(f"Ошибка обработки SQL", category='error')
     return redirect("/journ")
 
 
@@ -114,8 +137,11 @@ def jorn_add(id_rec):
 @login_required
 def jorn_edit(id_rec):
     with db_session.create_session() as db_sess:
-        current = db_sess.query(Journals).get(id_rec)
-        groupname = f"{current.groups.name.strip()} {current.groups.comment}"
+        try:
+            current = db_sess.query(Journals).get(id_rec)
+            groupname = f"{current.groups.name.strip()} {current.groups.comment}"
+        except Exception as err:
+            flash(f"Ошибка обработки SQL", category='error')
     form = ListFilterForm(current)
     if form.validate_on_submit():
         if form.sb_submit.data and Checker().time(form.fh_tstart.raw_data[0]).\
@@ -137,18 +163,21 @@ def jorn_edit(id_rec):
             #       form.fh_tend.data, form.fh_comment.data.strip())
             # print(present, estim, shtraf, usercomm)
             with db_session.create_session() as db_sess:
-                current = db_sess.query(Journals).get(form.hide_id)
-                if current:
-                    current.date = date_ru_us(form.fh_date.raw_data[0])
-                    current.tstart = form.fh_tstart.raw_data[0]
-                    current.tend = form.fh_tend.raw_data[0]
-                    current.name = form.fh_theme.raw_data[0].strip()
-                    current.present = ' '.join(present)
-                    current.estim = ' '.join(estim)
-                    current.shtraf = ' '.join(shtraf)
-                    current.usercomm = ' '.join(usercomm)
-                    current.comment = form.fh_comment.raw_data[0].strip()
-                    db_sess.commit()
+                try:
+                    current = db_sess.query(Journals).get(form.hide_id)
+                    if current:
+                        current.date = date_ru_us(form.fh_date.raw_data[0])
+                        current.tstart = form.fh_tstart.raw_data[0]
+                        current.tend = form.fh_tend.raw_data[0]
+                        current.name = form.fh_theme.raw_data[0].strip()
+                        current.present = ' '.join(present)
+                        current.estim = ' '.join(estim)
+                        current.shtraf = ' '.join(shtraf)
+                        current.usercomm = ' '.join(usercomm)
+                        current.comment = form.fh_comment.raw_data[0].strip()
+                        db_sess.commit()
+                except Exception as err:
+                    flash(f"Ошибка обработки SQL", category='error')
         return redirect("/journ")
     return render_template("list_edit.html", form=form, groupname=groupname)
 
@@ -157,10 +186,25 @@ def jorn_edit(id_rec):
 @login_required
 def jorn_delete(id_rec):
     with db_session.create_session() as db_sess:
-        if journ := db_sess.query(Journals).get(id_rec):
-            if not(journ.name and len(journ.name.strip()) > 8):
-                db_sess.delete(journ)
-                db_sess.commit()
+        try:
+            if journ := db_sess.query(Journals).get(id_rec):
+                if not(journ.name and len(journ.name.strip()) > 8):
+                    try:
+                        if len(journ.present.split()) == 0:
+                            raise IndexError
+                        else:
+                            flash('Лист не пустой', category='error')
+                    except Exception:
+                        try:
+                            db_sess.delete(journ)
+                            db_sess.commit()
+                            flash('Лист журнала удалён.', category='success')
+                        except Exception:
+                            flash('[SQL] Ошибка удаления', category='error')
+                else:
+                    flash('Заполнена тема занятия', category='error')
+        except Exception as err:
+            flash(f"Ошибка обработки SQL", category='error')
     return redirect("/journ")
 
 
@@ -172,23 +216,26 @@ def journ_view():
     cnt = dat.count()
     journ = []
     with db_session.create_session() as db_sess:
-        fjourn = db_sess.query(Journals).join(Groups).join(Courses).\
-            filter(Groups.idUsers == current_user.id, Courses.year == Const.YEAR).\
-            order_by(Journals.date, Journals.tstart)
-        if form.ff_groups.data != 0:
-            dat = dat.filter(Groups.id == form.ff_groups.data)
-            fjourn = fjourn.filter(Groups.id == form.ff_groups.data)
-        if form.ff_month.data != 0:
-            fjourn = fjourn.filter(extract('month', Journals.date) == form.ff_month.data)
-        for rec in fjourn:
-            new = MyDict()
-            new = MyDict(id=rec.id, date=date_us_ru(rec.date), tstart=rec.tstart, tend=rec.tend,
-                         counter=0 if not rec.present else len(rec.present.split()),
-                         name='' if not rec.name else rec.name.strip(),
-                         comment='' if not rec.comment else rec.comment.strip(),
-                         gruppa=f"{'' if not rec.groups.name else rec.groups.name.strip()} "
-                                f"{'' if not rec.groups.comment else rec.groups.comment.strip()}")
-            journ.append(new)
+        try:
+            fjourn = db_sess.query(Journals).join(Groups).join(Courses).\
+                filter(Groups.idUsers == current_user.id, Courses.year == Const.YEAR).\
+                order_by(Journals.date, Journals.tstart)
+            if form.ff_groups.data != 0:
+                dat = dat.filter(Groups.id == form.ff_groups.data)
+                fjourn = fjourn.filter(Groups.id == form.ff_groups.data)
+            if form.ff_month.data != 0:
+                fjourn = fjourn.filter(extract('month', Journals.date) == form.ff_month.data)
+            for rec in fjourn:
+                new = MyDict()
+                new = MyDict(id=rec.id, date=date_us_ru(rec.date), tstart=rec.tstart, tend=rec.tend,
+                             counter=0 if not rec.present else len(rec.present.split()),
+                             name='' if not rec.name else rec.name.strip(),
+                             comment='' if not rec.comment else rec.comment.strip(),
+                             gruppa=f"{'' if not rec.groups.name else rec.groups.name.strip()} "
+                                    f"{'' if not rec.groups.comment else rec.groups.comment.strip()}")
+                journ.append(new)
+        except Exception as err:
+            flash(f"Ошибка обработки SQL", category='error')
     if form.validate_on_submit():
         if form.submit.data:
             session['ff_groups'] = form.ff_groups.data
@@ -215,7 +262,11 @@ def login():
     form = LoginForm()
     if form.validate_on_submit():
         with db_session.create_session() as db_sess:
-            user = db_sess.query(Users).join(Roles).join(Priv).filter(Users.login == form.login.data).first()
+            try:
+                user = db_sess.query(Users).join(Roles).join(Priv).filter(Users.login == form.login.data).first()
+            except Exception as err:
+                user = None
+                flash(f"Ошибка обработки SQL", category='error')
         if user and user.check_password(form.password.data):
             login_user(user, remember=form.remember_me.data)
             session.current_user = user
@@ -230,23 +281,31 @@ def login():
 @app.route("/main", methods=['GET', 'POST'])
 def index():
     with db_session.create_session() as db_sess:
-        rsp = db_sess.query(Rasp).join(Groups).join(Users).order_by(Rasp.idDays, Rasp.tstart, Rasp.idKabs)
-    form_rasp = RaspFilterForm()
-    dat = rsp
-    if  request.method == 'POST' and form_rasp.validate_on_submit():
-        session['fr_users'] = form_rasp.fr_users.data
-        session['fr_weekday'] = form_rasp.fr_weekday.data
-        session['fr_kabinet'] = form_rasp.fr_kabinet.data
-        session['fr_course'] = form_rasp.fr_course.data
-    if form_rasp.fr_users.data != 0:
-        dat = dat.filter(Groups.idUsers == form_rasp.fr_users.data)
-    if form_rasp.fr_weekday.data != 0:
-        dat = dat.filter(Rasp.idDays == form_rasp.fr_weekday.data)
-    if form_rasp.fr_kabinet.data != 0:
-        dat = dat.filter(Rasp.idKabs == form_rasp.fr_kabinet.data)
-    if form_rasp.fr_course.data != 0:
-        dat = dat.filter(Groups.idCourses == form_rasp.fr_course.data)
-    cnt = dat.count()
+        try:
+            rsp = db_sess.query(Rasp).join(Groups).join(Users).order_by(Rasp.idDays, Rasp.tstart, Rasp.idKabs)
+            if not rsp:
+                raise EOFError
+            form_rasp = RaspFilterForm()
+            dat = rsp
+            if request.method == 'POST' and form_rasp.validate_on_submit():
+                session['fr_users'] = form_rasp.fr_users.data
+                session['fr_weekday'] = form_rasp.fr_weekday.data
+                session['fr_kabinet'] = form_rasp.fr_kabinet.data
+                session['fr_course'] = form_rasp.fr_course.data
+            if form_rasp.fr_users.data != 0:
+                dat = dat.filter(Groups.idUsers == form_rasp.fr_users.data)
+            if form_rasp.fr_weekday.data != 0:
+                dat = dat.filter(Rasp.idDays == form_rasp.fr_weekday.data)
+            if form_rasp.fr_kabinet.data != 0:
+                dat = dat.filter(Rasp.idKabs == form_rasp.fr_kabinet.data)
+            if form_rasp.fr_course.data != 0:
+                dat = dat.filter(Groups.idCourses == form_rasp.fr_course.data)
+            cnt = dat.count()
+        except Exception as err:
+            cnt = 0
+            dat = None
+            form_rasp = None
+            flash(f"Ошибка обработки SQL", category='error')
     return render_template("rasp_view.html", items=dat, form_rasp=form_rasp, cnt=cnt)
 
 
@@ -289,7 +348,11 @@ def base_view():
 @app.route("/rasp_free", methods=['GET', 'POST'])
 def index_free():
     with db_session.create_session() as db_sess:
-        rsp = db_sess.query(Rasp).join(Groups).join(Users).order_by(Rasp.idDays, Rasp.tstart, Rasp.idKabs)
+        try:
+            rsp = db_sess.query(Rasp).join(Groups).join(Users).order_by(Rasp.idDays, Rasp.tstart, Rasp.idKabs)
+        except Exception as err:
+            rsp = None
+            flash(f"Ошибка обработки SQL", category='error')
     form_rasp = RaspFilterForm()
     dat = rsp
     if  request.method == 'POST' and form_rasp.validate_on_submit():

@@ -15,7 +15,9 @@ h4              { font-size: 1.2em; }
 .add-entry dl   { font-weight: bold; }
 .metanav        { text-align: right; font-size: 0.8em; padding: 0.3em;
                   margin-bottom: 1em; background: #fafafa; }
-.flash          { font-weight: bold; color: #ff7777; padding: 0.5em; border: 0px solid #aacbe2; }
+.flash          { font-weight: bold; color: #662; padding: 0.5em; }
+.flash.success  { border: 1px solid #21DB56; background: #AEFFC5; }
+.flash.error    { border: 1px solid #FF4343; background: #FF9C9C; }
 .error          { background: #f0d6d6; padding: 0.5em; }
 
 .list_fields    { font-size: 14px; font-family: Arial; text-align: center; }
