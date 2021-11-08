@@ -137,6 +137,7 @@ class Checker():
             self.flag = any([6 < int(l) < 22, 0 <= int(r) < 60])
             return Checker(self.flag)
         except Exception:
+            print('time', field)
             return Checker(False)
 
     def date_us(self, field):
@@ -144,9 +145,10 @@ class Checker():
             y, m, d = field.split('-')
             dd = f"{int(y)}-{int(m)}-{int(d)}"
             self.flag = all([int(y) > 2019, 0 < int(m) < 13, 0 < int(d) < 32])
-            dd = datetime.date(y, m, d)
+            dd = datetime.date(int(y), int(m), int(d))
             return Checker(self.flag)
         except Exception:
+            print('date_us', field)
             return Checker(False)
 
     def date_ru(self, field):
@@ -154,9 +156,10 @@ class Checker():
             d, m, y = field.split('.')
             dd = f"{int(y)}.{int(m)}.{int(d)}"
             self.flag = all([int(y) > 2019, 0 < int(m) < 13, 0 < int(d) < 32])
-            dd = datetime.date(y, m, d)
+            dd = datetime.date(int(y), int(m), int(d))
             return Checker(self.flag)
         except Exception:
+            print('date_ru', field)
             return Checker(False)
 
 

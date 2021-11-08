@@ -29,6 +29,7 @@ app = Flask(__name__)
 app.config['SECRET_KEY'] = 'yandexlyceum_secret_key'
 login_manager = LoginManager()
 login_manager.init_app(app)
+db_session.global_init("DSN=it-cube64")
 
 
 @app.teardown_appcontext
@@ -308,10 +309,5 @@ def index_free():
     return render_template("rasp_view_free.html", items=dat, form_rasp=form_rasp, cnt=cnt)
 
 
-def main():
-    db_session.global_init("DSN=it-cube64")
-    app.run(host='0.0.0.0')
-
-
 if __name__ == '__main__':
-    main()
+    app.run(host='0.0.0.0')
