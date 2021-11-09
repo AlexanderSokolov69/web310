@@ -332,7 +332,7 @@ def index():
                 uslist.append(head)
 
                 for us in users:
-                    line = [us.navigator == '1', f"{us.ima.strip()} {us.fam[0]}.", us.places.comment.strip()]
+                    line = [us.navigator == '1', f"{us.ima.strip()} {us.fam[:2]}.", us.places.comment.strip()]
                     for _, n in reversed(presents):
                         line.append(us.id in n)
                     uslist.append(line)
@@ -411,4 +411,5 @@ def index_free():
 
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0')
+#    app.run(host='0.0.0.0')
+    app.run(debug=True)
