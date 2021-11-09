@@ -5,6 +5,7 @@ from flask import flash
 from sqlalchemy.orm import Session
 import sqlalchemy.ext.declarative as dec
 from data.cl_const import Const
+from data.db_class_access import Access
 
 SqlAlchemyBase = dec.declarative_base()
 __factory = None
@@ -36,6 +37,13 @@ def create_session() -> Session:
         flash(f"Ошибка создания сессии: {err}", category='error')
 
 
+def access_action(*args, **kwargs):
+    with create_session() as db_sess:
+        user = Access(**kwargs)
+        db_sess.add(user)
+        db_sess.commit()
+
+
 def executeSQL(func):
     try:
         ret = eval(func)
@@ -43,5 +51,3 @@ def executeSQL(func):
     except Exception as err:
         flash(f"Ошибка обработки SQL", category='error')
         return None
-
-

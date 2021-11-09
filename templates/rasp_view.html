@@ -11,20 +11,26 @@
         <tr>
             <td align="right" width="100%">Найдено записей: {{ cnt }}</td>
         </tr>
-         <tr>
+        <tr>
             <td width="100%" align="right">{{form_rasp.submit(class="flt_butts")}}</td>
         </tr>
-   </table>
+    </table>
     <hr>
     <table border="1" cellpadding="0" cellspacing="0" width="100%">
         <tbody>
         <tr>
             <td>
-                <table class="top_field" border="0" cellpadding="10" cellspacing="4" width="100%">
+                <table class="top_field" border="0" cellpadding="5" cellspacing="4" width="100%">
                     <tbody>{% for field in form_rasp if 'fr_' in field.name %}
                     <tr>
                         <td align="left">{{ field.label(class="area") }}</td>
-                        <td align="right">{{ field(class="list_fields") }}</td>
+                        <td align="right">
+                            {% if loop.index == 1 %}
+                           {{ field(class="list_wide") }}
+                            {% else %}
+                            {{ field(class="list_fields") }}
+                            {% endif %}
+                        </td>
                     </tr>
                     {% endfor %}
 
@@ -35,13 +41,12 @@
         </tbody>
     </table>
     <hr>
-
 </form>
 {% endblock %}
 
 {% block content %}
 <div class="col-md6 border rounded">
-    <table border="1" cellspacing="1" cellpadding="4">
+    <table class="main_table" border="1" cellspacing="1" cellpadding="4">
         <tbody>
         <tr class="table_head">
             <th scope="col">День недели</th>
@@ -69,5 +74,41 @@
         {% endfor %}
         </tbody>
     </table>
+    {% if uslist %}
+    <p class="main_head" align="center">Посещаемость</p>
+    <table border="1" cellpadding=4" cellspacing="2">
+        <tbody>
+        <tr class="table_head">
+            <th scope="col">№пп</th>
+            {% for el in uslist[0][1:] %}
+            <th scope="col">{{el}}</th>
+            {% endfor %}
+        </tr>
+        {% for user in uslist[1:] %}
+        {% if user[0] %}
+        <tr class="table_body">
+            {% else %}
+        <tr class="table_body" style="color: red;" title="Не оформлен ПФДО!">
+            {% endif %}
+            <td align=" center">{{ loop.index }}</td>
+            {% for el in user[1:]%}
+            {% if el in (1, 0) %}
+                {% if el %}
+            <td align="center"><img src="{{ url_for('static', filename='images/visit.png') }}" class="icon_smile"></td>
+                {% else %}
+            <td align="center"><img src="{{ url_for('static', filename='images/novisit.png') }}" title="Пропуск занятия" class="icon_smile"></td>
+
+                {% endif %}
+            {% else %}
+            <td align="center" width="120px">{{ el }}</td>
+            {% endif %}
+            {% endfor %}
+        </tr>
+        {% endfor %}
+
+        </tbody>
+    </table>
+    {% endif %}
+
 </div>
 {% endblock %}

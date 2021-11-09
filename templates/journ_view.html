@@ -17,17 +17,23 @@
         <td align="right">{{form.submit(class="flt_butts")}}</td>
     </table>
     <hr>
-    <table border="1" cellpadding="0" cellspacing="0" width="100%"><tbody><tr><td>
-            <table class="top_field" border="0" cellpadding="10" cellspacing="4" width="100%">
-                <tbody>{% for field in form if 'ff_' in field.name %}
-                <tr>
-                    <td align="left">{{ field.label(class="area") }}</td>
-                    <td align="right">{{ field(class="list_fields") }}</td>
-                </tr>
-                {% endfor %}
-                </tbody>
-            </table>
-        </td></tr></tbody></table>
+    <table border="1" cellpadding="0" cellspacing="0" width="100%">
+        <tbody>
+        <tr>
+            <td>
+                <table class="top_field" border="0" cellpadding="10" cellspacing="4" width="100%">
+                    <tbody>{% for field in form if 'ff_' in field.name %}
+                    <tr>
+                        <td align="left">{{ field.label(class="area") }}</td>
+                        <td align="right">{{ field(class="list_fields") }}</td>
+                    </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </td>
+        </tr>
+        </tbody>
+    </table>
     <hr>
     <p></p>
     <table class="list_fields" border="0" cellpadding="0" cellspacing="6" width="100%">
@@ -45,8 +51,10 @@
             <tbody>
             {% for rsp in spis %}
             <tr>
-                <td width="60px" align="center"><a style="color: blue;" href="/rasp/add/{{rsp.id}}">[+]-</a>
-                    <a style="color: red;" href="/rasp/delete/{{rsp.id}}">-[X]</a></td>
+                <td width="60px" align="center">
+                    <a href="/rasp/add/{{rsp.id}}"><img src="{{ url_for('static', filename='images/add.png') }}" title="Новая запись" class="icon"></a>
+                    <a href="/rasp/delete/{{rsp.id}}"><img src="{{ url_for('static', filename='images/del.png') }}" title="Удалить запись" class="icon"></a>
+                </td>
                 <td align="left">{{ rsp.days.name }}</td>
                 <td align="center" style="background-color: rgb{{rsp.kabs.color}}">{{ rsp.kabs.name }}</td>
                 <td align="center">{{ rsp.tstart }}</td>
@@ -63,7 +71,7 @@
 
 {% block content %}
 <div class="col-md6 border rounded">
-    <table class="list_fields" border="1" cellspacing="1" cellpadding="4">
+    <table class="main_table" border="1" cellspacing="1" cellpadding="4">
         <tbody>
         <tr class="table_head">
             <th scope="col">Режим</th>
@@ -77,9 +85,11 @@
         </tr>
         {% for item in journ%}
         <tr class="table_body">
-            <td width="80px" align="center"><a style="color: blue;" href="/journ/add/{{item.id}}">[+]</a>
-                <a style="color: green;" href="/journ/edit/{{item.id}}">-[V]-</a>
-                <a style="color: red;" href="/journ/delete/{{item.id}}">[X]</a></td>
+            <td width="80px" align="center">
+                <a href="/journ/add/{{item.id}}"><img src="{{ url_for('static', filename='images/add.png') }}" title="Добавить лист" class="icon"></a>
+                <a href="/journ/edit/{{item.id}}"><img src="{{ url_for('static', filename='images/edit.png') }}" title="Редактор листа" class="icon"></a>
+                <a href="/journ/delete/{{item.id}}"><img src="{{ url_for('static', filename='images/del.png') }}" title="Удалить лист" class="icon"></a>
+            </td>
             <td width="80px" align="center">{{item['date']}}</td>
             <td align="center">{{item.tstart}}</td>
             <td align="center">{{item.tend}}</td>

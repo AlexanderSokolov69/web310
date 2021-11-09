@@ -7,8 +7,10 @@ from sqlalchemy import extract
 from werkzeug.utils import redirect
 from data import db_session
 from data.cl_const import Const
+from data.db_class_access import access_action
 from data.db_class_courses import Courses
 from data.db_class_days import Days
+from data.db_class_group_table import GroupTable
 from data.db_class_groups import Groups
 from data.db_class_journals import Journals
 from data.db_class_kabs import Kabs
@@ -24,20 +26,19 @@ from forms.f_new_rasp import NewRasp
 from forms.f_rasp import RaspFilterForm
 from forms.f_user import LoginForm, RegisterForm
 
-
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'yandexlyceum_secret_key'
 login_manager = LoginManager()
 login_manager.init_app(app)
 db_session.global_init("DSN=it-cube64")
+access_action(sel='Регистрация SQL сессии')
 
 
 @app.teardown_appcontext
 def shutdown_session(exception=None):
-
     pass
 
-    #db_session.remove()
+    # db_session.remove()
 
 
 @app.errorhandler(404)
@@ -57,6 +58,7 @@ def load_user(user_id):
         with db_session.create_session() as db_sess:
             try:
                 ret = db_sess.query(Users).get(user_id)
+                access_action(idUser=ret.id, sel=f"Регистация в системе: {ret.name}")
             except Exception as err:
                 ret = None
                 flash(f"Ошибка обработки SQL", category='error')
@@ -144,7 +146,7 @@ def jorn_edit(id_rec):
             flash(f"Ошибка обработки SQL", category='error')
     form = ListFilterForm(current)
     if form.validate_on_submit():
-        if form.sb_submit.data and Checker().time(form.fh_tstart.raw_data[0]).\
+        if form.sb_submit.data and Checker().time(form.fh_tstart.raw_data[0]). \
                 time(form.fh_tend.raw_data[0]).date_ru(form.fh_date.raw_data[0]).flag:
             present = []
             estim = []
@@ -188,7 +190,7 @@ def jorn_delete(id_rec):
     with db_session.create_session() as db_sess:
         try:
             if journ := db_sess.query(Journals).get(id_rec):
-                if not(journ.name and len(journ.name.strip()) > 8):
+                if not (journ.name and len(journ.name.strip()) > 8):
                     try:
                         if len(journ.present.split()) == 0:
                             raise IndexError
@@ -217,8 +219,8 @@ def journ_view():
     journ = []
     with db_session.create_session() as db_sess:
         try:
-            fjourn = db_sess.query(Journals).join(Groups).join(Courses).\
-                filter(Groups.idUsers == current_user.id, Courses.year == Const.YEAR).\
+            fjourn = db_sess.query(Journals).join(Groups).join(Courses). \
+                filter(Groups.idUsers == current_user.id, Courses.year == Const.YEAR). \
                 order_by(Journals.date, Journals.tstart)
             if form.ff_groups.data != 0:
                 dat = dat.filter(Groups.id == form.ff_groups.data)
@@ -292,6 +294,7 @@ def index():
                 session['fr_weekday'] = form_rasp.fr_weekday.data
                 session['fr_kabinet'] = form_rasp.fr_kabinet.data
                 session['fr_course'] = form_rasp.fr_course.data
+                session['fr_group'] = form_rasp.fr_group.data
             if form_rasp.fr_users.data != 0:
                 dat = dat.filter(Groups.idUsers == form_rasp.fr_users.data)
             if form_rasp.fr_weekday.data != 0:
@@ -300,13 +303,48 @@ def index():
                 dat = dat.filter(Rasp.idKabs == form_rasp.fr_kabinet.data)
             if form_rasp.fr_course.data != 0:
                 dat = dat.filter(Groups.idCourses == form_rasp.fr_course.data)
+            uslist = None
+            if form_rasp.fr_group.data != 0:
+                dat = dat.filter(Groups.id == form_rasp.fr_group.data)
+                users = db_sess.query(Users).join(GroupTable).filter(GroupTable.idGroups == form_rasp.fr_group.data). \
+                    order_by(Users.ima)
+                TODAY = datetime.date.today().isoformat()
+                pres_jrn = db_sess.query(Journals).filter(Journals.idGroups == form_rasp.fr_group.data,
+                                                          Journals.date <= TODAY).\
+                    order_by(Journals.date.desc())
+                presents = []
+                try:
+                    for i, jrn in enumerate(pres_jrn):
+                        try:
+                            res = [int(us) for us in jrn.present.split()]
+                        except Exception:
+                            res = []
+                        presents.append((jrn.date, res))
+                        if i > 10:
+                            break
+                except Exception:
+                    pass
+                uslist = []
+                head = ['Навигатор', 'Имя Ф.', 'Класс']
+                for n, _ in reversed(presents):
+                    dt = datetime.date.fromisoformat(n)
+                    head.append(f"{dt.day:02}.{dt.month:02}")
+                uslist.append(head)
+
+                for us in users:
+                    line = [us.navigator == '1', f"{us.ima.strip()} {us.fam[0]}.", us.places.comment.strip()]
+                    for _, n in reversed(presents):
+                        line.append(us.id in n)
+                    uslist.append(line)
+#                print(uslist)
+#                uslist = [(us.id, f"{us.ima} {us.fam[0]}.", us.places.comment, us.navigator == '1') for us in users]
             cnt = dat.count()
         except Exception as err:
             cnt = 0
             dat = None
             form_rasp = None
             flash(f"Ошибка обработки SQL", category='error')
-    return render_template("rasp_view.html", items=dat, form_rasp=form_rasp, cnt=cnt)
+    return render_template("rasp_view.html", items=dat, form_rasp=form_rasp, cnt=cnt, uslist=uslist)
 
 
 @app.route('/register', methods=['GET', 'POST'])
@@ -355,7 +393,7 @@ def index_free():
             flash(f"Ошибка обработки SQL", category='error')
     form_rasp = RaspFilterForm()
     dat = rsp
-    if  request.method == 'POST' and form_rasp.validate_on_submit():
+    if request.method == 'POST' and form_rasp.validate_on_submit():
         session['fr_users'] = form_rasp.fr_users.data
         session['fr_weekday'] = form_rasp.fr_weekday.data
         session['fr_kabinet'] = form_rasp.fr_kabinet.data
