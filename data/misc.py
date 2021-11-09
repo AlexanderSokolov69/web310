@@ -151,8 +151,9 @@ class Checker():
         try:
             l, r = field.split(':')
             ret = f"{int(l):02}:{int(r):02}"
-            self.flag = any([6 < int(l) < 22, 0 <= int(r) < 60])
-            if not self.flag:
+            res = any([6 < int(l) < 22, 0 <= int(r) < 60])
+            if not res:
+                self.flag = False
                 flash(f"Ошибка в диапазоне [00:00]: {field}", category='error')
             return Checker(self.flag)
         except Exception:
@@ -163,9 +164,10 @@ class Checker():
         try:
             y, m, d = field.split('-')
             dd = f"{int(y)}-{int(m)}-{int(d)}"
-            self.flag = all([int(y) > 2019, 0 < int(m) < 13, 0 < int(d) < 32])
+            res = all([int(y) > 2019, 0 < int(m) < 13, 0 < int(d) < 32])
             dd = datetime.date(int(y), int(m), int(d))
-            if not self.flag:
+            if not res:
+                self.flag = False
                 flash(f"Ошибка в диапазоне даты: {field}", category='error')
             return Checker(self.flag)
         except Exception:
@@ -176,9 +178,10 @@ class Checker():
         try:
             d, m, y = field.split('.')
             dd = f"{int(y)}.{int(m)}.{int(d)}"
-            self.flag = all([int(y) > 2019, 0 < int(m) < 13, 0 < int(d) < 32])
+            res = all([int(y) > 2019, 0 < int(m) < 13, 0 < int(d) < 32])
             dd = datetime.date(int(y), int(m), int(d))
-            if not self.flag:
+            if not res:
+                self.flag = False
                 flash(f"Ошибка в диапазоне даты: {field}", category='error')
             return Checker(self.flag)
         except Exception:
@@ -188,5 +191,4 @@ class Checker():
 
 if __name__ == '__main__':
     d = MyDict(attr='32')
-
     print(str(d))

@@ -146,7 +146,7 @@ def jorn_edit(id_rec):
             flash(f"Ошибка обработки SQL", category='error')
     form = ListFilterForm(current)
     if form.validate_on_submit():
-        if form.sb_submit.data and Checker().time(form.fh_tstart.raw_data[0]). \
+        if form.sb_submit.data and Checker(True).time(form.fh_tstart.raw_data[0]). \
                 time(form.fh_tend.raw_data[0]).date_ru(form.fh_date.raw_data[0]).flag:
             present = []
             estim = []
@@ -161,13 +161,9 @@ def jorn_edit(id_rec):
                     shtraf.append(f"{rec['item_id']}={rec['shtraf'].strip()}")
                 if rec['comment']:
                     usercomm.append(f"{rec['item_id']}={rec['comment'].strip()}")
-            # print(form.hide_id, form.fh_theme.data.strip(), date_ru_us(form.fh_date.data), form.fh_tstart.data,
-            #       form.fh_tend.data, form.fh_comment.data.strip())
-            # print(present, estim, shtraf, usercomm)
             with db_session.create_session() as db_sess:
                 try:
-                    current = db_sess.query(Journals).get(form.hide_id)
-                    if current:
+                    if current := db_sess.query(Journals).get(form.hide_id):
                         current.date = date_ru_us(form.fh_date.raw_data[0])
                         current.tstart = form.fh_tstart.raw_data[0]
                         current.tend = form.fh_tend.raw_data[0]
@@ -178,9 +174,13 @@ def jorn_edit(id_rec):
                         current.usercomm = ' '.join(usercomm)
                         current.comment = form.fh_comment.raw_data[0].strip()
                         db_sess.commit()
+                    else:
+                        flash(f"Ошибка обработки SQL", category='error')
                 except Exception as err:
                     flash(f"Ошибка обработки SQL", category='error')
-        return redirect("/journ")
+            return redirect("/journ")
+        else:
+            db_sess.rollback()
     return render_template("list_edit.html", form=form, groupname=groupname)
 
 

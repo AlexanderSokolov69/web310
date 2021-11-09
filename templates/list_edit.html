@@ -59,9 +59,9 @@
                 <td align="center">{{ loop.index }}</td>
                 <td align="left">{{ field.data.fio }}</td>
                 <td align="center">{{ field.present(class="list_check") }}</td>
-                <td align="center">{{ field.estim(size=5, class="list_fields") }}</td>
-                <td align="center">{{ field.shtraf(size=10, class="list_fields") }}</td>
-                <td align="left">{{ field.comment(size=40, class="list_fields") }}</td>
+                <td align="center">{{ field.estim(class="list_fields", size=5) }}</td>
+                <td align="center">{{ field.shtraf(class="list_fields", size=10) }}</td>
+                <td align="left">{{ field.comment(class="list_fields", size=40) }}</td>
             </tr>
             {% endfor %}
             </tbody>
