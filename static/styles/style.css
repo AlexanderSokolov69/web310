@@ -34,3 +34,4 @@ h4              { font-size: 1.2em; }
 .top_field      { background-color: #ccc }
 .icon           {  width: 20px; height: 20px; }
 .icon_smile     {  width: 22px; height: 22px; }
+.form_errors    { font-weight: bold; border: 1px solid #FF4343; background: #FF9C9C; }

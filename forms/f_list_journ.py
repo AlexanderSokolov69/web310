@@ -6,7 +6,7 @@ from flask_wtf import FlaskForm
 from werkzeug.datastructures import MultiDict
 from wtforms import SelectField, SubmitField, StringField, FieldList, \
     TextAreaField, BooleanField, IntegerField, FormField, HiddenField
-from wtforms.validators import DataRequired
+from wtforms.validators import DataRequired, ValidationError
 
 from data import db_session
 from data.cl_const import Const
@@ -51,6 +51,14 @@ class ListFilterForm(FlaskForm):
     sb_submit = SubmitField('Сохранить')
     sb_cancel = SubmitField('Назад')
 
+    # def validate_fh_tstart(self, fh_tstart):
+    #     if ':' not in self.fh_tstart.data:
+    #         raise ValidationError(f"[Начало] отсутствует ':'")
+    #
+    # def validate_fh_tend(self, fh_tend):
+    #     if ':' not in self.fh_tend.data:
+    #         raise ValidationError(f"[Окончание] отсутствует ':'")
+
     def __init__(self, current):
         super(ListFilterForm, self).__init__()
         self.hide_id = current.id
@@ -79,7 +87,5 @@ class ListFilterForm(FlaskForm):
         data = MyDict()
         data['items'] = users_list
         self.fs_spisok = UserListForm(data=data)
-
-
 
 

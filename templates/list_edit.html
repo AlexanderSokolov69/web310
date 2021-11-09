@@ -28,7 +28,7 @@
     </table>
     <hr>
     {% for field, errors in form.errors.items() %}
-    <small class="form-text text-muted ">
+    <small class="form_errors">
         {{ ', '.join(errors) }}
     </small>
     {% endfor %}
