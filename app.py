@@ -178,9 +178,9 @@ def jorn_edit(id_rec):
                         flash(f"Ошибка обработки SQL", category='error')
                 except Exception as err:
                     flash(f"Ошибка обработки SQL", category='error')
-            return redirect("/journ")
-        else:
-            db_sess.rollback()
+        #     return redirect("/journ")
+        # else:
+        return redirect("/journ")
     return render_template("list_edit.html", form=form, groupname=groupname)
 
 
