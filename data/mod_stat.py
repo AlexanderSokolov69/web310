@@ -47,19 +47,55 @@ class Statistics:
                 except Exception:
                     res = []
                 presents.append((jrn.date, res))
-                if i > 10:
-                    break
         except Exception:
             pass
         uslist = []
-        head = ['Навигатор', 'Имя Ф.', 'Класс']
+        head = MyDict()
+        head.navigator = 'Навигатор'
+        head.ima_f = 'Имя Ф.'
+        head.klass = 'Класс'
+        head.stars = MyDict()
+        head.stars_cnt = 0
+        head.present = []
         for n, _ in reversed(presents):
             dt = datetime.date.fromisoformat(n)
-            head.append(f"{dt.day:02}.{dt.month:02}")
+            head.present.append(f"{dt.day:02}.{dt.month:02}")
         uslist.append(head)
         for us in self.spisok_users.values():
-            line = [us.navigator, us.ima_f, us.klass]
-            for _, n in reversed(presents):
-                line.append(us.id in n)
-            uslist.append(line)
+            head = MyDict()
+            head.navigator = us.navigator
+            head.ima_f = us.ima_f
+            head.klass = us.klass
+            head.stars = MyDict()
+            head.stars_cnt = 0
+            head.present = []
+            for d, n in reversed(presents):
+                month = datetime.date.fromisoformat(d).month
+                pres = us.id in n
+                cnt = head.stars.get(month, [0, 0])
+                cnt = [cnt[0] + 1, cnt[1] + pres]
+                head.stars[month] = cnt
+                head.present.append(pres)
+            uslist.append(head)
+        month = datetime.date.today().month
+        for user in uslist[1:]:
+            for star in user.stars:
+                if star != month:
+                    user.stars_cnt += (user.stars[star][1] / user.stars[star][0]) >= Const.PRESENT_PRC
+            new_pres = []
+            for dd, state in zip(uslist[0].present, user.present):
+                mnt = int(dd.split('.')[1])
+                if  mnt in user.stars.keys():
+                    if (user.stars[mnt][1] / user.stars[mnt][0]) >= Const.PRESENT_PRC:
+                        state0 = [state, 'bg80']
+                    elif (user.stars[mnt][1] / user.stars[mnt][0]) < Const.PRESENT_PRC_LOW:
+                        state0 = [state, 'bg20']
+                    else:
+                        state0 = [state, 'bg0']
+                else:
+                    state0 = [state, 'bg0']
+                new_pres.append(state0)
+            print(new_pres)
+            user.present = new_pres
+        print(uslist)
         return uslist

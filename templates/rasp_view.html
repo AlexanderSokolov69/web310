@@ -80,28 +80,31 @@
         <tbody>
         <tr class="table_head">
             <th scope="col">№пп</th>
-            {% for el in uslist[0][1:] %}
-            <th scope="col">{{el}}</th>
+            <th scope="col">{{ uslist[0].ima_f }}</th>
+            <th scope="col">{{ uslist[0].klass }}</th>
+            <th scope="col">Рейтинг</th>
+            {% for el in uslist[0].present[-10:] %}
+            <th scope="col">{{ el }}</th>
             {% endfor %}
         </tr>
         {% for user in uslist[1:] %}
-        {% if user[0] %}
-        <tr class="table_body" style="background-color: #cfc;">
+        {% if user.navigator %}
+        <tr class="table_body">
             {% else %}
-        <tr class="table_body" style="background-color: #efe; color: red;" title="Не оформлен ПФДО!">
+        <tr class="table_body" style="color: red;" title="Не оформлен ПФДО!">
             {% endif %}
             <td align=" center">{{ loop.index }}</td>
-            {% for el in user[1:]%}
-            {% if el in (1, 0) %}
-                {% if el %}
-            <td align="center"><img src="{{ url_for('static', filename='images/visit.png') }}" class="icon_smile"></td>
+            <td align=" center">{{ user.ima_f }}</td>
+            <td align=" center">{{ user.klass }}</td>
+            <td>{% for _ in range(user.stars_cnt) %}
+                <img src="{{ url_for('static', filename='images/star.png') }}" class="icon_star">
+                {% endfor %}</td>
+            {% for el in user.present[-10:] %}
+                {% if el[0] %}
+            <td align="center" class="{{el[1]}}"><img src="{{ url_for('static', filename='images/visit.png') }}" class="icon_smile"></td>
                 {% else %}
-            <td align="center"><img src="{{ url_for('static', filename='images/novisit.png') }}" title="Пропуск занятия" class="icon_smile"></td>
-
+            <td align="center" class="{{el[1]}}"><img src="{{ url_for('static', filename='images/novisit.png') }}" title="Пропуск занятия" class="icon_smile"></td>
                 {% endif %}
-            {% else %}
-            <td align="center" width="120px">{{ el }}</td>
-            {% endif %}
             {% endfor %}
         </tr>
         {% endfor %}

@@ -11,7 +11,10 @@ class Const:
     D_START = '2021-10-01'
     D_END = '2022-01-01'
 
-    # Access items
+    PRESENT_PRC = 0.8
+    PRESENT_PRC_LOW = 0.2
+
+# Access items
     ACC_PREPOD = '1%'
     ACC_CUBIST = '0%'
 

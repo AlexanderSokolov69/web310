@@ -33,6 +33,10 @@ h4              { font-size: 1.2em; }
 .table_body     { background-color: #fff; font-size: 14px; font-family: Arial; text-align: center; width: 100% }
 .top_field      { background-color: #ccc }
 .icon           {  width: 20px; height: 20px; }
+.bg80           { background-color: #cfc; }
+.bg20           { background-color: #999; }
+.bg0            { background-color: #eee; }
 .icon_smile     {  width: 22px; height: 22px; }
+.icon_star      {  width: 16px; height: 16px; }
 .form_errors    { font-weight: bold; border: 1px solid #FF4343; background: #FF9C9C; }
 .it_cube        { font-size: 18px; }

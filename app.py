@@ -240,6 +240,7 @@ def login():
 
 @app.route("/main", methods=['GET', 'POST'])
 def index():
+    uslist = None
     try:
         rsp = g.db_sess.query(Rasp).join(Groups).join(Users).order_by(Rasp.idDays, Rasp.tstart, Rasp.idKabs)
         if not rsp:
@@ -260,7 +261,6 @@ def index():
             dat = dat.filter(Rasp.idKabs == form_rasp.fr_kabinet.data)
         if form_rasp.fr_course.data != 0:
             dat = dat.filter(Groups.idCourses == form_rasp.fr_course.data)
-        uslist = None
         if form_rasp.fr_group.data != 0:
             dat = dat.filter(Groups.id == form_rasp.fr_group.data)
             #
@@ -277,7 +277,8 @@ def index():
         dat = None
         form_rasp = None
         flash(f"Ошибка обработки SQL", category='error')
-    return render_template("rasp_view.html", items=dat, form_rasp=form_rasp, cnt=cnt, uslist=uslist)
+    return render_template("rasp_view.html", items=dat, form_rasp=form_rasp, cnt=cnt,
+                           uslist=uslist, args={ 'rate': Const.PRESENT_PRC})
 
 
 @app.route('/register', methods=['GET', 'POST'])
