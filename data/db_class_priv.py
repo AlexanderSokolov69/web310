@@ -3,6 +3,7 @@ import sqlalchemy
 from sqlalchemy import Column, Integer, String, ForeignKey
 from sqlalchemy.orm import relationship
 from sqlalchemy_serializer import SerializerMixin
+from flask import g
 
 from data.db_session import SqlAlchemyBase
 

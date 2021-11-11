@@ -1,5 +1,6 @@
 import datetime
 import sqlalchemy
+from flask import g
 from sqlalchemy import Column, Integer, String, ForeignKey, DateTime
 from sqlalchemy.orm import relationship
 from sqlalchemy_serializer import SerializerMixin
@@ -31,9 +32,9 @@ class Access(SqlAlchemyBase, SerializerMixin):
 
 
 def access_action(**kwargs):
-    with db_session.create_session() as db_sess:
-        user = Access(**kwargs)
-        db_sess.add(user)
-        db_sess.commit()
+    # with db_session.create_session() as db_sess:
+    user = Access(**kwargs)
+    g.db_sess.add(user)
+    g.db_sess.commit()
 
 

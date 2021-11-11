@@ -6,6 +6,8 @@ class Const:
     TEST_MODE = False
     IN_TRANSACTION = False
     YEAR = 2021
+    DATE_FROM = '09-01'
+    DATE_TO = '06-01'
     D_START = '2021-10-01'
     D_END = '2022-01-01'
 

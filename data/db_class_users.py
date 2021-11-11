@@ -8,6 +8,7 @@ from .cl_password import Password
 from .db_class_places import Places
 from .db_class_roles import Roles
 from .db_session import SqlAlchemyBase
+from flask import g
 
 
 class Users(SqlAlchemyBase, UserMixin, SerializerMixin):

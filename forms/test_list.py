@@ -1,4 +1,5 @@
 from collections import namedtuple
+from flask import g
 
 from flask import session, flash
 from flask_login import current_user
@@ -55,27 +56,27 @@ class ListFilterForm(FlaskForm):
         self.fh_tend.data = current.tend
         self.fh_comment.data = current.comment
         pres = [int(id) for id in current.present.split()]
-        try:
-            with db_session.create_session() as db_sess:
-                try:
-                    spis = db_sess.query(Users).join(GroupTable, GroupTable.idUsers == Users.id).\
-                           filter(current.idGroups == GroupTable.idGroups).order_by(Users.name)
-                except Exception as err:
-                    spis = None
-                    flash(f"Ошибка обработки SQL", category='error')
-            for item_form in self.fs_spisok:
-                for item in kwargs['data']['items']:
-                    if item.id == item_form.item_id.data:
-                        item_form.want.label =''
-                        item_form.label = item.name
-            users_list = []
-            i = 1
-            for user in spis:
-                users_list.append(UserItem(i, user.id in pres, user.name))
-                i += 1
-            self.fs_data['items'] = users_list
-        except Exception as err:
-            db_sess = None
-            flash(f"Ошибка обработки SQL", category='error')
+        # try:
+        # with db_session.create_session() as db_sess:
+        #     try:
+        spis = g.db_sess.query(Users).join(GroupTable, GroupTable.idUsers == Users.id).\
+               filter(current.idGroups == GroupTable.idGroups).order_by(Users.name)
+            # except Exception as err:
+            #     spis = None
+            #     flash(f"Ошибка обработки SQL", category='error')
+        for item_form in self.fs_spisok:
+            for item in kwargs['data']['items']:
+                if item.id == item_form.item_id.data:
+                    item_form.want.label =''
+                    item_form.label = item.name
+        users_list = []
+        i = 1
+        for user in spis:
+            users_list.append(UserItem(i, user.id in pres, user.name))
+            i += 1
+        self.fs_data['items'] = users_list
+    # except Exception as err:
+    #     db_sess = None
+    #     flash(f"Ошибка обработки SQL", category='error')
 
 

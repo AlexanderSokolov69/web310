@@ -1,5 +1,6 @@
 import os
 import hashlib
+from flask import g
 
 
 

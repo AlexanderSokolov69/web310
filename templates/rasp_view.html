@@ -86,9 +86,9 @@
         </tr>
         {% for user in uslist[1:] %}
         {% if user[0] %}
-        <tr class="table_body">
+        <tr class="table_body" style="background-color: #cfc;">
             {% else %}
-        <tr class="table_body" style="color: red;" title="Не оформлен ПФДО!">
+        <tr class="table_body" style="background-color: #efe; color: red;" title="Не оформлен ПФДО!">
             {% endif %}
             <td align=" center">{{ loop.index }}</td>
             {% for el in user[1:]%}

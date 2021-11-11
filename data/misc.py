@@ -1,6 +1,7 @@
 import datetime
 
 from flask import flash
+from flask import g
 
 from data import db_session
 from data.cl_const import Const
@@ -112,10 +113,10 @@ def journ_fill_month(*args, **kwargs):
                     new_r['tstart'] = rec[1][0]
                     new_r['tend'] = rec[1][1]
                     try:
-                        with db_session.create_session() as db_sess:
-                            db_sess.add(Journals(**new_r))
-                            db_sess.commit()
-                            cnt += 1
+                        # with db_session.create_session() as db_sess:
+                        g.db_sess.add(Journals(**new_r))
+                        g.db_sess.commit()
+                        cnt += 1
                     except Exception as err:
                         group = None
                         flash(f"Ошибка обработки SQL", category='error')
@@ -133,11 +134,11 @@ def journ_clear_month(*args, **kwargs):
             except Exception:
                 if Const.TEST_MODE:
                     print('DELETE', rec)
-                with db_session.create_session() as db_sess:
-                    to_del = db_sess.query(Journals).get(rec.id)
-                    db_sess.delete(to_del)
-                    db_sess.commit()
-                    cnt += 1
+                # with db_session.create_session() as db_sess:
+                to_del = g.db_sess.query(Journals).get(rec.id)
+                g.db_sess.delete(to_del)
+                g.db_sess.commit()
+                cnt += 1
         else:
             flash(f"Тема не пустая: {rec.name}", category='error')
     flash(f"Удалено записей: {cnt}", category='success')

@@ -39,10 +39,10 @@ def create_session() -> Session:
 
 
 def access_action(*args, **kwargs):
-    with create_session() as db_sess:
-        user = Access(**kwargs)
-        db_sess.add(user)
-        db_sess.commit()
+    # with create_session() as db_sess:
+    user = Access(**kwargs)
+    g.db_sess.add(user)
+    g.db_sess.commit()
 
 
 def executeSQL(func):

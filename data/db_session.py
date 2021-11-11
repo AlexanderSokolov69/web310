@@ -2,6 +2,7 @@ import urllib
 import sqlalchemy as sa
 import sqlalchemy.orm as orm
 from flask import flash
+from flask import g
 from sqlalchemy.orm import Session
 import sqlalchemy.ext.declarative as dec
 from data.cl_const import Const

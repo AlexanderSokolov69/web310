@@ -2,6 +2,7 @@ import datetime
 from sqlalchemy import Column, Integer, String, ForeignKey
 from sqlalchemy.orm import relationship
 from sqlalchemy_serializer import SerializerMixin
+from flask import g
 
 from .db_class_priv import Priv
 from .db_session import SqlAlchemyBase
