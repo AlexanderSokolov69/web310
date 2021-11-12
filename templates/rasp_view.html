@@ -46,6 +46,7 @@
 
 {% block content %}
 <div class="col-md6 border rounded">
+    {% if items %}
     <table class="main_table" border="1" cellspacing="1" cellpadding="4">
         <tbody>
         <tr class="table_head">
@@ -74,6 +75,7 @@
         {% endfor %}
         </tbody>
     </table>
+    {% endif %}
     {% if uslist %}
     <p class="main_head" align="center">Посещаемость</p>
     <table border="1" cellpadding=4" cellspacing="2">

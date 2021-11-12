@@ -12,6 +12,7 @@ from data.db_class_courses import Courses
 from data.db_class_group_table import GroupTable
 from data.db_class_groups import Groups
 from data.db_class_journals import Journals
+from data.db_class_monts import Monts
 from data.db_class_priv import Priv
 from data.db_class_rasp import Rasp
 from data.db_class_roles import Roles
@@ -214,6 +215,16 @@ def journ_view():
     return render_template("journ_view.html", form=form, spis=dat, journ=journ, cnt=cnt)
 
 
+@app.route('/stat', methods=['GET', 'POST'])
+@login_required
+def stat_view():
+    grp_spis = g.db_sess.query(Groups).order_by(Groups.idCourses, Groups.name)
+    forma = MyDict()
+    for item in grp_spis:
+        forma[item.id] = Statistics(idGroups=item.id, date_to=datetime.date.today().isoformat()).get_group_stat()
+    return render_template("stat01_view.html", items=forma)
+
+
 @app.route('/', methods=['GET', 'POST'])
 def base():
     if current_user and current_user.is_authenticated:
@@ -241,11 +252,11 @@ def login():
 @app.route("/main", methods=['GET', 'POST'])
 def index():
     uslist = None
+    form_rasp = RaspFilterForm()
     try:
         rsp = g.db_sess.query(Rasp).join(Groups).join(Users).order_by(Rasp.idDays, Rasp.tstart, Rasp.idKabs)
         if not rsp:
             raise EOFError
-        form_rasp = RaspFilterForm()
         dat = rsp
         if request.method == 'POST' and form_rasp.validate_on_submit():
             session['fr_users'] = form_rasp.fr_users.data
@@ -265,17 +276,14 @@ def index():
             dat = dat.filter(Groups.id == form_rasp.fr_group.data)
             #
             # Формирование списков кубистов
-            users = g.db_sess.query(Users).join(GroupTable).\
-                filter(GroupTable.idGroups == form_rasp.fr_group.data).order_by(Users.ima)
-            mystat = Statistics(users=users,
-                                idGroups=form_rasp.fr_group.data,
+            mystat = Statistics(idGroups=form_rasp.fr_group.data,
                                 date_to=datetime.date.today().isoformat())
             uslist = mystat.get_pres_stat()
+
         cnt = dat.count()
     except Exception:
         cnt = 0
         dat = None
-        form_rasp = None
         flash(f"Ошибка обработки SQL", category='error')
     return render_template("rasp_view.html", items=dat, form_rasp=form_rasp, cnt=cnt,
                            uslist=uslist, args={ 'rate': Const.PRESENT_PRC})
@@ -339,5 +347,5 @@ def index_free():
 
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0')
-#    app.run(debug=True)
+#    app.run(host='0.0.0.0')
+    app.run(debug=True)

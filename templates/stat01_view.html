@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+
+{% block header00 %}Текущая статистика по группам{% endblock %}
+
+
+
+{% block content %}
+<div class="col-md6 border rounded">
+    {% if items %}
+    <table class="main_table" border="1" cellspacing="1" cellpadding="4">
+        <tbody>
+        {% for grp in items %}
+        <tr class="table_head">
+            <th scope="col">grp.course_name</th>
+            <th scope="col">grp.group_name</th>
+            <th scope="col">grp.prepod_name</th>
+        </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+    {% endif %}
+</div>
+{% endblock %}
