@@ -19,9 +19,9 @@
     </table>
     <table class="main_table" border="1" cellspacing="1" cellpadding="4">
         <tbody>
-        {% for stroka in grp.stat.keys() %}
+        {% for stroka in grp.stat.values() %}
         <tr class="table_body">
-            {% for item in grp.stat[stroka] %}
+            {% for item in stroka %}
             <td>
                 {{item}}
             </td>
