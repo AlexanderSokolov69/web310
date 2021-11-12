@@ -95,7 +95,5 @@ class Statistics:
                 else:
                     state0 = [state, 'bg0']
                 new_pres.append(state0)
-            print(new_pres)
             user.present = new_pres
-        print(uslist)
         return uslist
