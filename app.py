@@ -222,7 +222,14 @@ def stat_view():
     forma = MyDict()
     for item in grp_spis:
         forma[item.id] = Statistics(idGroups=item.id, date_to=datetime.date.today().isoformat()).get_group_stat()
-    return render_template("stat01_view.html", items=forma)
+
+    # for grp in forma.values():
+    #     print(grp.course_name,  grp.group_name, grp.prepod_name)
+    #     for stroka in grp.stat.values():
+    #         for item in stroka:
+    #             print(item, end=' ')
+    #         print()
+    return render_template("stat01_view.html", stat_groups=forma)
 
 
 @app.route('/', methods=['GET', 'POST'])

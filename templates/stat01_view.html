@@ -6,17 +6,18 @@
 
 {% block content %}
 <div class="col-md6 border rounded">
-    {% if items %}
+    {% if stat_groups %}
     <table class="main_table" border="1" cellspacing="1" cellpadding="4">
         <tbody>
-        {% for grp in items %}
+        {% for grp in stat_groups.values() %}
         <tr class="table_head">
+            <th scope="col">{{loop.index}}</th>
             <th scope="col">{{grp.course_name}}</th>
             <th scope="col">{{grp.group_name}}</th>
             <th scope="col">{{grp.prepod_name}}</th>
         </tr>
-        {% for stroka in grp.stat %}
-        <tr>
+        {% for stroka in grp.stat.values() %}
+        <tr class="table_body">
             {% for item in stroka %}
             <td>
                 {{item}}
