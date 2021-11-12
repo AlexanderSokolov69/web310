@@ -11,10 +11,19 @@
         <tbody>
         {% for grp in items %}
         <tr class="table_head">
-            <th scope="col">grp.course_name</th>
-            <th scope="col">grp.group_name</th>
-            <th scope="col">grp.prepod_name</th>
+            <th scope="col">{{grp.course_name}}</th>
+            <th scope="col">{{grp.group_name}}</th>
+            <th scope="col">{{grp.prepod_name}}</th>
         </tr>
+        {% for stroka in grp.stat %}
+        <tr>
+            {% for item in stroka %}
+            <td>
+                {{item}}
+            </td>
+            {% endfor %}
+        </tr>
+        {% endfor %}
         {% endfor %}
         </tbody>
     </table>
