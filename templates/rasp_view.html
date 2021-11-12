@@ -97,8 +97,12 @@
             <td align=" center">{{ user.ima_f }}</td>
             <td align=" center">{{ user.klass }}</td>
             <td>{% for _ in range(user.stars_cnt) %}
-                <img src="{{ url_for('static', filename='images/star.png') }}" class="icon_star">
-                {% endfor %}</td>
+                <img src="{{ url_for('static', filename='images/star.png') }}" class="icon_star" title="Лидер посещаемости!">
+                {% endfor %}
+            {% for _ in range(user.blacks_cnt) %}
+                <img src="{{ url_for('static', filename='images/black.png') }}" class="icon_star"  title="Месяц прогулял!">
+                {% endfor %}
+            </td>
             {% for el in user.present[-10:] %}
                 {% if el[0] %}
             <td align="center" class="{{el[1]}}"><img src="{{ url_for('static', filename='images/visit.png') }}" class="icon_smile"></td>

@@ -68,6 +68,7 @@ class Statistics:
             head.klass = us.klass
             head.stars = MyDict()
             head.stars_cnt = 0
+            head.blacks_cnt = 0
             head.present = []
             for d, n in reversed(presents):
                 month = datetime.date.fromisoformat(d).month
@@ -82,6 +83,7 @@ class Statistics:
             for star in user.stars:
                 if star != month:
                     user.stars_cnt += (user.stars[star][1] / user.stars[star][0]) >= Const.PRESENT_PRC
+                    user.blacks_cnt += (user.stars[star][1] / user.stars[star][0]) < Const.PRESENT_PRC_LOW
             new_pres = []
             for dd, state in zip(uslist[0].present, user.present):
                 mnt = int(dd.split('.')[1])
