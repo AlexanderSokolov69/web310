@@ -20,41 +20,62 @@ class Statistics:
         self.group_name = None
         self.course_name = None
         self.prepod_name = None
+        self.users = None
         self.spisok_users = MyDict()
-        if users := kwargs.get('users', None):
-            pass
-        elif self.idGroups:
-            users = g.db_sess.query(Users).join(GroupTable). \
+        users = kwargs.get('users', None)
+        if not users and self.idGroups:
+            users = g.db_sess.query(GroupTable).join(Users, GroupTable.idUsers == Users.id). \
                 filter(GroupTable.idGroups == self.idGroups).order_by(Users.ima)
-        else:
-            print('Создать выборку по всем кубистам...')
-        for user in users:
-            try:
-                item = MyDict()
-                item.id = user.id
-                item.name = user.name.strip()
-                item.ima_f = f"{user.ima.strip()} {user.fam[:2:1]}."
-                item.navigator = True if isinstance(user.navigator, str) and ('1' in user.navigator) else False
-                item.klass = user.places.comment.strip()
-                self.spisok_users[user.id] = item
-            except Exception as err:
-                print(err)
+        self.user_spisok_create(users)
+
+    def user_spisok_create(self, users):
+        if users:
+            for user in users:
+                try:
+                    item = MyDict()
+                    item.idGroups = user.idGroups
+                    item.id = user.users.id
+                    item.name = user.users.name.strip()
+                    item.ima_f = f"{user.users.ima.strip()} {user.users.fam[:2:1]}."
+                    item.navigator = True if isinstance(user.users.navigator, str) and ('1' in user.users.navigator) else False
+                    item.klass = user.users.places.comment.strip()
+                    self.spisok_users[user.id] = item
+                except Exception as err:
+                    print(err)
 
     def get_pres_stat(self):
         if self.idGroups:
             pres_jrn = g.db_sess.query(Journals).join(GroupTable, GroupTable.idGroups == Journals.idGroups).\
                 join(Groups, Groups.id == Journals.idGroups).join(Courses, Courses.id == Groups.idCourses).\
-                filter(Journals.date <= self.date_to).\
-                filter(Journals.idGroups == self.idGroups).order_by(Journals.date.desc())
+                filter(Journals.date.between(self.date_from, self.date_to)).\
+                filter(Journals.idGroups == self.idGroups).order_by(Journals.date)
         else:
+            print('формируем pres_jrn')
             pres_jrn = g.db_sess.query(Journals).join(GroupTable, GroupTable.idGroups == Journals.idGroups).\
                 join(Groups, Groups.id == Journals.idGroups).join(Courses, Courses.id == Groups.idCourses).\
-                filter(Journals.date <= self.date_to).\
-                order_by(Journals.date.desc())
+                filter(Journals.date.between(self.date_from, self.date_to)).\
+                order_by(Journals.date)
+            print('формируем users')
+            users = g.db_sess.query(GroupTable).join(Users, GroupTable.idUsers == Users.id).\
+                join(Journals, GroupTable.idGroups == Journals.idGroups). \
+                filter(Journals.date.between(self.date_from, self.date_to)).\
+                order_by(GroupTable.idGroups, Users.ima, Users.fam)
+            print('формируем self.spisok_users')
+            self.user_spisok_create(users)
 
-        presents = []
+        print('формируем статистику посещаемости')
+        mnt_name = Monts().get_dict()
+        presents = MyDict()
+        groups = MyDict()
         try:
-            for i, jrn in enumerate(pres_jrn):
+            for jrn in pres_jrn:
+                groups[jrn.groups.id] = MyDict(group_name=f"{jrn.groups.name.strip()} {jrn.groups.comment.strip()}",
+                                               course_name=jrn.groups.courses.name.strip(),
+                                               prepod_name=jrn.groups.users.name.strip(),
+                                               idGroups=jrn.groups.id,
+                                               igCourses=jrn.groups.idCourses,
+                                               idUsers=jrn.groups.idUsers
+                                               )
                 if not self.group_name:
                     self.group_name = f"{jrn.groups.name.strip()} {jrn.groups.comment.strip()}"
                     self.course_name = jrn.groups.courses.name.strip()
@@ -63,65 +84,94 @@ class Statistics:
                     he, me = jrn.tend.split(':')
                     hs, ms = jrn.tstart.split(':')
                     lhours = (60 * int(he) + int(me) - 60 * int(hs) - int(ms)) // int(jrn.groups.courses.acchour)
-                    res = [int(us) for us in jrn.present.split()]
+                    res = {int(us) for us in jrn.present.split()}
                 except Exception:
                     lhours = 0
-                    res = []
-                presents.append((jrn.date, res, lhours))
+                    res = {}
+                item = presents.get(jrn.groups.id, MyDict())
+                item[jrn.date] = MyDict(lhour=lhours, present=res)
+                presents[jrn.groups.id] = item
         except Exception:
             pass
-        uslist = []
-        head = MyDict()
-        head.navigator = 'Навигатор'
-        head.ima_f = 'Имя Ф.'
-        head.klass = 'Класс'
-        head.stars = MyDict()
-        head.stars_cnt = 0
-        head.present = []
-        for n, _, __ in reversed(presents):
-            dt = datetime.date.fromisoformat(n)
-            head.present.append(f"{dt.day:02}.{dt.month:02}")
-        uslist.append(head)
-        for us in self.spisok_users.values():
-            head = MyDict()
-            head.navigator = us.navigator
-            head.ima_f = us.ima_f
-            head.klass = us.klass
-            head.stars = MyDict()
-            head.stars_cnt = 0
-            head.blacks_cnt = 0
-            head.present = []
-            for d, n, lh in reversed(presents):
-                month = datetime.date.fromisoformat(d).month
-                pres = us.id in n
-                cnt = head.stars.get(month, [0, 0, 0, 0])
-                cnt = [cnt[0] + 1, cnt[1] + pres, cnt[2] + lh, cnt[3] + lh * pres]
-                head.stars[month] = cnt
-                head.present.append(pres)
-            uslist.append(head)
-        month = datetime.date.today().month
-        for user in uslist[1:]:
-            for star in user.stars:
-                if star != month:
-                    user.stars_cnt += (user.stars[star][1] / user.stars[star][0]) >= Const.PRESENT_PRC
-                    user.blacks_cnt += (user.stars[star][1] / user.stars[star][0]) < Const.PRESENT_PRC_LOW
-            new_pres = []
-            for dd, state in zip(uslist[0].present, user.present):
-                mnt = int(dd.split('.')[1])
-                if  mnt in user.stars.keys():
-                    if (user.stars[mnt][1] / user.stars[mnt][0]) >= Const.PRESENT_PRC:
-                        state0 = [state, 'bg80']
-                    elif (user.stars[mnt][1] / user.stars[mnt][0]) < Const.PRESENT_PRC_LOW:
-                        state0 = [state, 'bg20']
+        print('раскладываем статистику посещаемости по персоналиям')
+        out_list = MyDict()
+        for grp in presents.keys():
+            ghead = MyDict()
+            ghead.id = 'ID'
+            ghead.navigator = 'Навигатор'
+            ghead.ima_f = 'Имя Ф.'
+            ghead.klass = 'Класс'
+            ghead.stars = MyDict()
+            ghead.stars_cnt = 0
+            ghead.blacks_cnt = 0
+            ghead.present = []
+            out_list[grp] = MyDict(spis=[ghead],
+                                   idGroups=jrn.groups.id,
+                                   group_name=groups[grp].group_name,
+                                   igCourses=jrn.groups.idCourses,
+                                   course_name=groups[grp].course_name,
+                                   idUsers=jrn.groups.idUsers,
+                                   prepod_name=groups[grp].prepod_name,
+                                   stars=MyDict()
+                                   )
+
+            for n in presents[grp].keys():
+                dt = datetime.date.fromisoformat(n)
+                out_list[grp].spis[0]['present'].append(f"{dt.day:02}.{dt.month:02}")
+
+            for us in filter(lambda x: x.idGroups == grp, self.spisok_users.values()):
+                head = MyDict()
+                head.id = us.id
+                head.navigator = us.navigator
+                head.ima_f = us.ima_f
+                head.klass = us.klass
+                head.stars = MyDict()
+                head.stars_cnt = 0
+                head.blacks_cnt = 0
+                head.present = []
+                for d, item in zip (presents[grp].keys(), presents[grp].values()):
+                    month = datetime.date.fromisoformat(d).month
+                    pres = us.id in item.present
+                    cnt = head.stars.get(month, ['', 0, 0, 0, 0])
+                    cnt = [mnt_name[month], cnt[1] + 1, cnt[2] + pres, cnt[3] + item.lhour, cnt[4] + item.lhour * pres]
+                    head.stars[month] = cnt
+                    head.present.append(pres)
+                out_list[grp].spis.append(head)
+                for mnt in head.stars.keys():
+                    new = head.stars[mnt]
+                    curr = out_list[grp].stars.get(mnt, ['', 0, 0, 0, 0])
+                    out_list[grp].stars[mnt] = [mnt_name[mnt],
+                                                curr[1] + new[1],
+                                                curr[2] + new[2],
+                                                curr[3] + new[3],
+                                                curr[4] + new[4]
+                                                ]
+
+            month = datetime.date.today().month
+            for user in out_list[grp].spis[1:]:
+                for star in user.stars:
+                    if star != month:
+                        user.stars_cnt += (user.stars[star][1] / user.stars[star][0]) >= Const.PRESENT_PRC
+                        user.blacks_cnt += (user.stars[star][1] / user.stars[star][0]) < Const.PRESENT_PRC_LOW
+                new_pres = []
+                for dd, state in zip(out_list[grp].spis[0]['present'], user['present']):
+                    mnt = int(dd.split('.')[1])
+                    if  mnt in user.stars.keys():
+                        if (user.stars[mnt][1] / user.stars[mnt][0]) >= Const.PRESENT_PRC:
+                            state0 = [state, 'bg80']
+                        elif (user.stars[mnt][1] / user.stars[mnt][0]) < Const.PRESENT_PRC_LOW:
+                            state0 = [state, 'bg20']
+                        else:
+                            state0 = [state, 'bg0']
                     else:
                         state0 = [state, 'bg0']
-                else:
-                    state0 = [state, 'bg0']
-                new_pres.append(state0)
-            user.present = new_pres
-        return uslist
+                    new_pres.append(state0)
+                user['present'] = new_pres
+        if self.idGroups:
+            return out_list[self.idGroups]
+        return out_list
 
-    def get_group_stat(self, idGroup=None):
+    def get_group_stat(self):
         uslist = self.get_pres_stat()
         mnt_name = Monts().get_dict()
         grp_days = MyDict()

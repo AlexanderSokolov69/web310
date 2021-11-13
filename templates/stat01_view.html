@@ -10,7 +10,7 @@
     <table class="main_table" border="1" cellspacing="1" cellpadding="4">
         <tbody>
         <tr class="table_head">
-            <th scope="col">{{loop.index}}</th>
+            <th scope="col">{{grp.id}}</th>
             <th scope="col">{{grp.course_name}}</th>
             <th scope="col">{{grp.group_name}}</th>
             <th scope="col">{{grp.prepod_name}}</th>
@@ -19,9 +19,9 @@
     </table>
     <table class="main_table" border="1" cellspacing="1" cellpadding="4">
         <tbody>
-        {% for stroka in grp.stat.values() %}
+        {% for stroka in grp.spis %}
         <tr class="table_body">
-            {% for item in stroka %}
+            {% for item in stroka.values() %}
             <td>
                 {{item}}
             </td>

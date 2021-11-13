@@ -82,14 +82,14 @@
         <tbody>
         <tr class="table_head">
             <th scope="col">№пп</th>
-            <th scope="col">{{ uslist[0].ima_f }}</th>
-            <th scope="col">{{ uslist[0].klass }}</th>
+            <th scope="col">{{ uslist.spis[0].ima_f }}</th>
+            <th scope="col">{{ uslist.spis[0].klass }}</th>
             <th scope="col">Рейтинг</th>
-            {% for el in uslist[0].present[-10:] %}
+            {% for el in uslist.spis[0].present[-10:] %}
             <th scope="col">{{ el }}</th>
             {% endfor %}
         </tr>
-        {% for user in uslist[1:] %}
+        {% for user in uslist.spis[1:] %}
         {% if user.navigator %}
         <tr class="table_body">
             {% else %}

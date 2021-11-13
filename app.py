@@ -215,6 +215,14 @@ def journ_view():
     return render_template("journ_view.html", form=form, spis=dat, journ=journ, cnt=cnt)
 
 
+@app.route('/groups', methods=['GET', 'POST'])
+@login_required
+def gstat_view():
+    stat = Statistics(date_to=datetime.date.today().isoformat()).get_pres_stat()
+
+    return render_template("stat01_view.html", stat_groups=stat)
+
+
 @app.route('/stat', methods=['GET', 'POST'])
 @login_required
 def stat_view():
@@ -283,9 +291,8 @@ def index():
             dat = dat.filter(Groups.id == form_rasp.fr_group.data)
             #
             # Формирование списков кубистов
-            mystat = Statistics(idGroups=form_rasp.fr_group.data,
-                                date_to=datetime.date.today().isoformat())
-            uslist = mystat.get_pres_stat()
+            uslist = Statistics(idGroups=form_rasp.fr_group.data,
+                                date_to=datetime.date.today().isoformat()).get_pres_stat()
 
         cnt = dat.count()
     except Exception:
@@ -354,5 +361,5 @@ def index_free():
 
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0')
-#    app.run(debug=True)
+#    app.run(host='0.0.0.0')
+    app.run(debug=True)
