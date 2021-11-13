@@ -23,6 +23,7 @@ from forms.f_journ import JournFilterForm
 from forms.f_list_journ import ListFilterForm
 from forms.f_new_rasp import NewRasp
 from forms.f_rasp import RaspFilterForm
+from forms.f_stat import StatFilterForm
 from forms.f_user import LoginForm, RegisterForm
 
 
@@ -226,9 +227,29 @@ def journ_view():
 @app.route('/stat', methods=['GET', 'POST'])
 @login_required
 def stat_view():
-    stat = Statistics(date_to=datetime.date.today().isoformat()).get_pres_stat()
+    form = StatFilterForm()
+    stat = None
+    if request.method == 'POST' and form.validate_on_submit():
+        param = MyDict()
+        param['date_from'] = form.fr_bdate.data.isoformat()
+        param['date_to'] = form.fr_edate.data.isoformat()
+        if form.fr_users.data != 0:
+            param['idUsers'] = form.fr_users.data
+        if form.fr_course.data != 0:
+            param['idCourses'] = form.fr_course.data
+        obj = Statistics(**param)
+        if form.fr_select.data == 1:
+            stat = obj.get_stat_grupped(id='idUsers')
+        elif form.fr_select.data == 2:
+            stat = obj.get_stat_grupped(id='idCourses')
+        elif form.fr_select.data == 3:
+            stat = obj.get_stat_grupped(id='idGroups')
+        else:
+            stat = obj.get_stat_grupped()
+    # else:
+    #     stat = Statistics(date_to=datetime.date.today().isoformat()).get_stat_grupped()
     heads = ['Месяц', 'Штатная посещаемость', 'Фактическая посещаемость', 'Чел/часы по расписанию', 'Чел/часы по факту', '% посещаемости']
-    return render_template("stat01_view.html", stat_groups=stat, head=heads)
+    return render_template("stat01_view.html", stat_groups=stat, head=heads, form=form)
 
 
 @app.route('/', methods=['GET', 'POST'])
@@ -239,6 +260,7 @@ def base():
         return redirect('/main')
 
 
+@app.route('/register', methods=['GET', 'POST'])
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     form = LoginForm()
@@ -295,7 +317,6 @@ def index():
                            uslist=uslist, args={ 'rate': Const.PRESENT_PRC}, head=heads)
 
 
-@app.route('/register', methods=['GET', 'POST'])
 def reqister():
     form = RegisterForm()
     if form.validate_on_submit():
@@ -353,5 +374,5 @@ def index_free():
 
 
 if __name__ == '__main__':
-#    app.run(host='0.0.0.0')
-    app.run(debug=True)
+    app.run(host='0.0.0.0')
+#    app.run(debug=True)

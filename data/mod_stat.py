@@ -9,7 +9,7 @@ from data.db_class_groups import Groups
 from data.db_class_journals import Journals
 from data.db_class_monts import Monts
 from data.db_class_users import Users
-from data.misc import MyDict
+from data.misc import MyDict, date_us_ru
 
 
 class Statistics:
@@ -17,6 +17,8 @@ class Statistics:
         self.date_from = kwargs.get('date_from', f'{Const.YEAR}-{Const.DATE_FROM}')
         self.date_to = kwargs.get('date_to', f'{Const.YEAR + 1}-{Const.DATE_TO}')
         self.idGroups = kwargs.get('idGroups', None)
+        self.idCourses = kwargs.get('idCourses', None)
+        self.idUsers = kwargs.get('idUsers', None)
         self.group_name = None
         self.course_name = None
         self.prepod_name = None
@@ -50,20 +52,26 @@ class Statistics:
                 filter(Journals.date.between(self.date_from, self.date_to)).\
                 filter(Journals.idGroups == self.idGroups).order_by(Journals.date)
         else:
-            print('формируем pres_jrn')
+
             pres_jrn = g.db_sess.query(Journals).join(GroupTable, GroupTable.idGroups == Journals.idGroups).\
                 join(Groups, Groups.id == Journals.idGroups).join(Courses, Courses.id == Groups.idCourses).\
-                filter(Journals.date.between(self.date_from, self.date_to)).\
-                order_by(Journals.date)
-            print('формируем users')
+                filter(Journals.date.between(self.date_from, self.date_to))
+            if self.idUsers:
+                pres_jrn = pres_jrn.filter(Groups.idUsers == self.idUsers)
+            if self.idCourses:
+                pres_jrn = pres_jrn.filter(Groups.idCourses == self.idCourses)
+            pres_jrn = pres_jrn.order_by(Journals.date)
+
             users = g.db_sess.query(GroupTable).join(Users, GroupTable.idUsers == Users.id).\
                 join(Journals, GroupTable.idGroups == Journals.idGroups). \
-                filter(Journals.date.between(self.date_from, self.date_to)).\
-                order_by(GroupTable.idGroups, Users.ima, Users.fam)
-            print('формируем self.spisok_users')
+                filter(Journals.date.between(self.date_from, self.date_to))
+            # if self.idUsers:
+            #     users = users.filter(Journals.groups.idUsers == self.idUsers)
+            users = users.order_by(GroupTable.idGroups, Users.ima, Users.fam)
+            # print('формируем self.spisok_users')
             self.user_spisok_create(users)
 
-        print('формируем статистику посещаемости')
+        # print('формируем статистику посещаемости')
         mnt_name = Monts().get_dict()
         presents = MyDict()
         groups = MyDict()
@@ -72,9 +80,9 @@ class Statistics:
                 groups[jrn.groups.id] = MyDict(group_name=f"{jrn.groups.name.strip()} {jrn.groups.comment.strip()}",
                                                course_name=jrn.groups.courses.name.strip(),
                                                prepod_name=jrn.groups.users.name.strip(),
-                                               idGroups=jrn.groups.id,
-                                               igCourses=jrn.groups.idCourses,
-                                               idUsers=jrn.groups.idUsers
+                                               idGroups=int(jrn.groups.id),
+                                               idCourses=int(jrn.groups.idCourses),
+                                               idUsers=int(jrn.groups.idUsers)
                                                )
                 if not self.group_name:
                     self.group_name = f"{jrn.groups.name.strip()} {jrn.groups.comment.strip()}"
@@ -93,7 +101,7 @@ class Statistics:
                 presents[jrn.groups.id] = item
         except Exception:
             pass
-        print('раскладываем статистику посещаемости по персоналиям')
+        # print('раскладываем статистику посещаемости по персоналиям')
         out_list = MyDict()
         for grp in presents.keys():
             ghead = MyDict()
@@ -106,11 +114,11 @@ class Statistics:
             ghead.blacks_cnt = 0
             ghead.present = []
             out_list[grp] = MyDict(spis=[ghead],
-                                   idGroups=jrn.groups.id,
+                                   idGroups=groups[grp].idGroups,
                                    group_name=groups[grp].group_name,
-                                   igCourses=jrn.groups.idCourses,
+                                   idCourses=groups[grp].idCourses,
                                    course_name=groups[grp].course_name,
-                                   idUsers=jrn.groups.idUsers,
+                                   idUsers=groups[grp].idUsers,
                                    prepod_name=groups[grp].prepod_name,
                                    stars=MyDict()
                                    )
@@ -175,6 +183,44 @@ class Statistics:
         if self.idGroups:
             return out_list[self.idGroups]
         return out_list
+
+    def get_stat_grupped(self, *args, **kwargs):
+        stat = self.get_pres_stat()
+        result = MyDict()
+        if kwargs:
+            grp = kwargs['id']
+        else:
+            grp = None
+
+        for item in stat.values():
+            if grp:
+                id = item[grp]
+            else:
+                id = 0
+            cur = result.get(id, MyDict())
+            if grp == 'idUsers':
+                cur.course_name = item.prepod_name
+            elif grp == 'idGroups':
+                cur.course_name = item.group_name
+            elif grp == 'idCourses':
+                cur.course_name = item.course_name
+            else:
+                cur.course_name = 'Статистика по IT-кубу'
+
+            cur.group_name = "Период:"
+            cur.prepod_name = f"с {date_us_ru(self.date_from)} по {date_us_ru(self.date_to)}"
+            cur.stars = cur.get('stars', MyDict())
+            for mnt in item.stars.items():
+                old = cur.stars.get(mnt[0], ['', 0, 0, 0, 0])
+                cur.stars[mnt[0]] = [mnt[1][0],
+                                     old[1] + mnt[1][1],
+                                     old[2] + mnt[1][2],
+                                     old[3] + mnt[1][3],
+                                     old[4] + mnt[1][4],
+                                     round(100 * (old[2] + mnt[1][2]) / (old[1] + mnt[1][1]), 1)]
+            result[id] = cur
+        # print(result)
+        return result
 
     def get_group_stat(self):
         uslist = self.get_pres_stat()
