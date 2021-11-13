@@ -117,6 +117,24 @@
 
         </tbody>
     </table>
+
+    {% if current_user.is_authenticated %}
+    <p class="main_head" align="center">Статистика</p>
+    <table class="main_table" border="1" cellspacing="1" cellpadding="4">
+        <tbody>
+        {% for i in range(6) %}
+        <tr class="table_body">
+            <th align="left">{{head[i]}}</th>
+            {% for item in uslist.stars.values() %}
+            <td>
+                {{item[i]}}
+            </td>
+            {% endfor %}
+        </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+    {% endif %}
     {% endif %}
 
 </div>

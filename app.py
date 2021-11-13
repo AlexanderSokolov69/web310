@@ -215,29 +215,20 @@ def journ_view():
     return render_template("journ_view.html", form=form, spis=dat, journ=journ, cnt=cnt)
 
 
-@app.route('/groups', methods=['GET', 'POST'])
-@login_required
-def gstat_view():
-    stat = Statistics(date_to=datetime.date.today().isoformat()).get_pres_stat()
-
-    return render_template("stat01_view.html", stat_groups=stat)
+# @app.route('/groups', methods=['GET', 'POST'])
+# @login_required
+# def gstat_view():
+#     stat = Statistics(idGroups=1, date_to=datetime.date.today().isoformat()).get_pres_stat()
+#     heads = ['Месяц', 'Штатная посещаемость', 'Фактическая посещаемость', 'Чел/часы по расписанию', 'Чел/часы по факту', '% посещаемости']
+#     return render_template("stat01_view.html", stat_groups=stat, head=heads)
 
 
 @app.route('/stat', methods=['GET', 'POST'])
 @login_required
 def stat_view():
-    grp_spis = g.db_sess.query(Groups).order_by(Groups.idCourses, Groups.name)
-    forma = MyDict()
-    for item in grp_spis:
-        forma[item.id] = Statistics(idGroups=item.id, date_to=datetime.date.today().isoformat()).get_group_stat()
-
-    # for grp in forma.values():
-    #     print(grp.course_name,  grp.group_name, grp.prepod_name)
-    #     for stroka in grp.stat.values():
-    #         for item in stroka:
-    #             print(item, end=' ')
-    #         print()
-    return render_template("stat01_view.html", stat_groups=forma)
+    stat = Statistics(date_to=datetime.date.today().isoformat()).get_pres_stat()
+    heads = ['Месяц', 'Штатная посещаемость', 'Фактическая посещаемость', 'Чел/часы по расписанию', 'Чел/часы по факту', '% посещаемости']
+    return render_template("stat01_view.html", stat_groups=stat, head=heads)
 
 
 @app.route('/', methods=['GET', 'POST'])
@@ -299,8 +290,9 @@ def index():
         cnt = 0
         dat = None
         flash(f"Ошибка обработки SQL", category='error')
+    heads = ['Месяц', 'Штатная посещаемость', 'Фактическая посещаемость', 'Чел/часы по расписанию', 'Чел/часы по факту', '% посещаемости']
     return render_template("rasp_view.html", items=dat, form_rasp=form_rasp, cnt=cnt,
-                           uslist=uslist, args={ 'rate': Const.PRESENT_PRC})
+                           uslist=uslist, args={ 'rate': Const.PRESENT_PRC}, head=heads)
 
 
 @app.route('/register', methods=['GET', 'POST'])

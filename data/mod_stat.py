@@ -151,15 +151,17 @@ class Statistics:
             for user in out_list[grp].spis[1:]:
                 for star in user.stars:
                     if star != month:
-                        user.stars_cnt += (user.stars[star][1] / user.stars[star][0]) >= Const.PRESENT_PRC
-                        user.blacks_cnt += (user.stars[star][1] / user.stars[star][0]) < Const.PRESENT_PRC_LOW
+                        dv = (user.stars[star][2] / user.stars[star][1])
+                        user.stars_cnt += dv >= Const.PRESENT_PRC
+                        user.blacks_cnt += dv < Const.PRESENT_PRC_LOW
                 new_pres = []
                 for dd, state in zip(out_list[grp].spis[0]['present'], user['present']):
                     mnt = int(dd.split('.')[1])
                     if  mnt in user.stars.keys():
-                        if (user.stars[mnt][1] / user.stars[mnt][0]) >= Const.PRESENT_PRC:
+                        dv = (user.stars[mnt][2] / user.stars[mnt][1])
+                        if  dv >= Const.PRESENT_PRC:
                             state0 = [state, 'bg80']
-                        elif (user.stars[mnt][1] / user.stars[mnt][0]) < Const.PRESENT_PRC_LOW:
+                        elif dv < Const.PRESENT_PRC_LOW:
                             state0 = [state, 'bg20']
                         else:
                             state0 = [state, 'bg0']
@@ -167,6 +169,9 @@ class Statistics:
                         state0 = [state, 'bg0']
                     new_pres.append(state0)
                 user['present'] = new_pres
+            for mnt in out_list[grp].stars.keys():
+                prc = round(100 * out_list[grp].stars[mnt][2] / out_list[grp].stars[mnt][1], 1)
+                out_list[grp].stars[mnt].append(prc)
         if self.idGroups:
             return out_list[self.idGroups]
         return out_list
