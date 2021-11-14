@@ -75,7 +75,7 @@ class ListFilterForm(FlaskForm):
         # try:
         #     with db_session.create_session() as db_sess:
         spis = g.db_sess.query(Users).join(GroupTable, GroupTable.idUsers == Users.id).\
-               filter(current.idGroups == GroupTable.idGroups).order_by(Users.name).all()
+               filter(current.idGroups == GroupTable.idGroups).order_by(Users.name)
         # except Exception as err:
         #     spis = None
         #     flash(f"Ошибка обработки SQL", category='error')

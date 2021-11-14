@@ -18,6 +18,10 @@ class Const:
     ACC_PREPOD = '1%'
     ACC_CUBIST = '0%'
 
+    AU_PREPOD = 0
+    AU_FULLNAME = 1
+    AU_ALLGRP = 2
+    AU_EDITOR = 3
 
     # Users
     USR_ID = 0

@@ -1,5 +1,6 @@
 import datetime
 from flask import g
+import os
 
 from flask import Flask, render_template, request, session, flash
 from flask_login import LoginManager, login_user, logout_user, login_required, current_user
@@ -17,7 +18,7 @@ from data.db_class_priv import Priv
 from data.db_class_rasp import Rasp
 from data.db_class_roles import Roles
 from data.db_class_users import Users
-from data.misc import MyDict, date_us_ru, date_ru_us, journ_fill_month, journ_clear_month, Checker
+from data.misc import MyDict, date_us_ru, date_ru_us, journ_fill_month, journ_clear_month, Checker, check_access
 from data.mod_stat import Statistics
 from forms.f_journ import JournFilterForm
 from forms.f_list_journ import ListFilterForm
@@ -28,7 +29,8 @@ from forms.f_user import LoginForm, RegisterForm
 
 
 app = Flask(__name__)
-app.config['SECRET_KEY'] = 'AlexFalcon_secret_key'
+app.config['SECRET_KEY'] = b'\x8c\xec\xc2\x00\x1az\\\'\xbdT\xda@\x04\xda\x18\x1b\x822\xf5Y\xd6"9m'
+# app.config['SECRET_KEY'] = os.urandom(24)
 login_manager = LoginManager()
 login_manager.init_app(app)
 db_session.global_init("DSN=it-cube64")
@@ -71,111 +73,128 @@ def load_user(user_id):
 @app.route('/rasp/add/<int:id_rec>', methods=['GET', 'POST'])
 @login_required
 def rasp_add(id_rec):
-    curr = g.db_sess.query(Rasp).get(id_rec)
-    form = NewRasp(idGroups=curr.idGroups, idKabs=curr.idKabs, idDays=curr.idDays, tstart=curr.tstart,
-                   tend=curr.tend, name='Новая', comment='')
-    if form.validate_on_submit():
-        if form.bb_submit.data:
-            curr = g.db_sess.query(Rasp).get(id_rec)
-            rasp = Rasp()
-            rasp.idGroups = form.idGroups.raw_data[0]
-            rasp.idKabs = form.idKabs.raw_data[0]
-            rasp.idDays = form.idDays.raw_data[0]
-            rasp.tstart = form.tstart.raw_data[0]
-            rasp.tend = form.tend.raw_data[0]
-            rasp.name = form.name.raw_data[0]
-            rasp.comment = form.comment.raw_data[0]
-            g.db_sess.add(rasp)
-            g.db_sess.commit()
-            flash('Запись добавлена', category='success')
-        return redirect("/journ")
-    return render_template("rasp_add.html", form=form)
+    if check_access([Const.AU_EDITOR]):
+        curr = g.db_sess.query(Rasp).get(id_rec)
+        form = NewRasp(idGroups=curr.idGroups, idKabs=curr.idKabs, idDays=curr.idDays, tstart=curr.tstart,
+                       tend=curr.tend, name='Новая', comment='')
+        if form.validate_on_submit():
+            if form.bb_submit.data:
+                curr = g.db_sess.query(Rasp).get(id_rec)
+                rasp = Rasp()
+                rasp.idGroups = form.idGroups.raw_data[0]
+                rasp.idKabs = form.idKabs.raw_data[0]
+                rasp.idDays = form.idDays.raw_data[0]
+                rasp.tstart = form.tstart.raw_data[0]
+                rasp.tend = form.tend.raw_data[0]
+                rasp.name = form.name.raw_data[0]
+                rasp.comment = form.comment.raw_data[0]
+                g.db_sess.add(rasp)
+                g.db_sess.commit()
+                flash('Запись добавлена', category='success')
+            return redirect("/journ")
+        return render_template("rasp_add.html", form=form)
+    else:
+        flash('Доступ запещён', category='error')
+    return redirect("/journ")
 
 
 @app.route('/rasp/delete/<int:id_rec>', methods=['GET'])
 @login_required
 def rasp_delete(id_rec):
-    if rasp := g.db_sess.query(Rasp).get(id_rec):
-        g.db_sess.delete(rasp)
-        g.db_sess.commit()
-        flash('Запись удалена', category='success')
+    if check_access([Const.AU_EDITOR]):
+        if rasp := g.db_sess.query(Rasp).get(id_rec):
+            g.db_sess.delete(rasp)
+            g.db_sess.commit()
+            flash('Запись удалена', category='success')
+    else:
+        flash('Доступ запещён', category='error')
     return redirect("/journ")
 
 
 @app.route('/journ/add/<int:id_rec>', methods=['GET'])
 @login_required
 def jorn_add(id_rec):
-    curr = g.db_sess.query(Journals).get(id_rec)
-    journ = Journals()
-    journ.date = curr.date
-    journ.idGroups = curr.idGroups
-    journ.tstart = curr.tstart
-    journ.tend = curr.tend
-    journ.name = curr.name
-    g.db_sess.add(journ)
-    g.db_sess.commit()
-    flash('Запись добавлена', category='success')
+    if check_access([Const.AU_EDITOR]):
+        curr = g.db_sess.query(Journals).get(id_rec)
+        journ = Journals()
+        journ.date = curr.date
+        journ.idGroups = curr.idGroups
+        journ.tstart = curr.tstart
+        journ.tend = curr.tend
+        journ.name = curr.name
+        g.db_sess.add(journ)
+        g.db_sess.commit()
+        flash('Запись добавлена', category='success')
+    else:
+        flash('Доступ запещён', category='error')
     return redirect("/journ")
 
 
 @app.route('/journ/edit/<int:id_rec>', methods=['POST', 'GET'])
 @login_required
 def jorn_edit(id_rec):
-    current = g.db_sess.query(Journals).get(id_rec)
-    groupname = f"{current.groups.name.strip()} {current.groups.comment}"
-    form = ListFilterForm(current)
-    if form.validate_on_submit():
-        if form.sb_submit.data and Checker(True).time(form.fh_tstart.raw_data[0]). \
-                time(form.fh_tend.raw_data[0]).date_ru(form.fh_date.raw_data[0]).flag:
-            present = []
-            estim = []
-            shtraf = []
-            usercomm = []
-            for rec in form.fs_spisok.data['items']:
-                if rec['present']:
-                    present.append(str(rec['item_id']))
-                if rec['estim']:
-                    estim.append(f"{rec['item_id']}={rec['estim'].strip()}")
-                if rec['shtraf']:
-                    shtraf.append(f"{rec['item_id']}={rec['shtraf'].strip()}")
-                if rec['comment']:
-                    usercomm.append(f"{rec['item_id']}={rec['comment'].strip()}")
-            if current := g.db_sess.query(Journals).get(form.hide_id):
-                current.date = date_ru_us(form.fh_date.raw_data[0])
-                current.tstart = form.fh_tstart.raw_data[0]
-                current.tend = form.fh_tend.raw_data[0]
-                current.name = form.fh_theme.raw_data[0].strip()
-                current.present = ' '.join(present)
-                current.estim = ' '.join(estim)
-                current.shtraf = ' '.join(shtraf)
-                current.usercomm = ' '.join(usercomm)
-                current.comment = form.fh_comment.raw_data[0].strip()
-                g.db_sess.commit()
-            else:
-                flash(f"Ошибка обработки SQL", category='error')
-        return redirect("/journ")
-    return render_template("list_edit.html", form=form, groupname=groupname)
+    if check_access([Const.AU_EDITOR]):
+        current = g.db_sess.query(Journals).get(id_rec)
+        groupname = f"{current.groups.name.strip()} {current.groups.comment}"
+        form = ListFilterForm(current)
+        if form.validate_on_submit():
+            if form.sb_submit.data and Checker(True).time(form.fh_tstart.raw_data[0]). \
+                    time(form.fh_tend.raw_data[0]).date_ru(form.fh_date.raw_data[0]).flag:
+                present = []
+                estim = []
+                shtraf = []
+                usercomm = []
+                for rec in form.fs_spisok.data['items']:
+                    if rec['present']:
+                        present.append(str(rec['item_id']))
+                    if rec['estim']:
+                        estim.append(f"{rec['item_id']}={rec['estim'].strip()}")
+                    if rec['shtraf']:
+                        shtraf.append(f"{rec['item_id']}={rec['shtraf'].strip()}")
+                    if rec['comment']:
+                        usercomm.append(f"{rec['item_id']}={rec['comment'].strip()}")
+                if current := g.db_sess.query(Journals).get(form.hide_id):
+                    current.date = date_ru_us(form.fh_date.raw_data[0])
+                    current.tstart = form.fh_tstart.raw_data[0]
+                    current.tend = form.fh_tend.raw_data[0]
+                    current.name = form.fh_theme.raw_data[0].strip()
+                    current.present = ' '.join(present)
+                    current.estim = ' '.join(estim)
+                    current.shtraf = ' '.join(shtraf)
+                    current.usercomm = ' '.join(usercomm)
+                    current.comment = form.fh_comment.raw_data[0].strip()
+                    g.db_sess.commit()
+                else:
+                    flash(f"Ошибка обработки SQL", category='error')
+            return redirect("/journ")
+        return render_template("list_edit.html", form=form, groupname=groupname)
+    else:
+        flash('Доступ запещён', category='error')
+    return redirect("/journ")
 
 
 @app.route('/journ/delete/<int:id_rec>', methods=['GET'])
 @login_required
 def jorn_delete(id_rec):
-    if journ := g.db_sess.query(Journals).get(id_rec):
-        if not (journ.name and len(journ.name.strip()) > 8):
-            try:
-                if len(journ.present.split()) == 0:
-                    raise IndexError
-                else:
-                    flash('Лист не пустой', category='error')
-            except Exception:
+    if check_access([Const.AU_EDITOR]):
+        if journ := g.db_sess.query(Journals).get(id_rec):
+            if not (journ.name and len(journ.name.strip()) > 8):
                 try:
-                    g.db_sess.delete(journ)
-                    g.db_sess.commit()
-                    flash('Лист журнала удалён.', category='success')
+                    if len(journ.present.split()) == 0:
+                        raise IndexError
+                    else:
+                        flash('Лист не пустой', category='error')
                 except Exception:
-                    flash('[SQL] Ошибка удаления', category='error')
-        else:
-            flash('Заполнена тема занятия', category='error')
+                    try:
+                        g.db_sess.delete(journ)
+                        g.db_sess.commit()
+                        flash('Лист журнала удалён.', category='success')
+                    except Exception:
+                        flash('[SQL] Ошибка удаления', category='error')
+            else:
+                flash('Заполнена тема занятия', category='error')
+    else:
+        flash('Доступ запещён', category='error')
     return redirect("/journ")
 
 
@@ -186,9 +205,14 @@ def journ_view():
     dat = form.rasp
     cnt = dat.count()
     journ = []
-    fjourn = g.db_sess.query(Journals).join(Groups).join(Courses). \
-        filter(Groups.idUsers == current_user.id, Courses.year == Const.YEAR). \
-        order_by(Journals.date, Journals.tstart)
+    if check_access([Const.AU_ALLGRP]):
+        fjourn = g.db_sess.query(Journals).join(Groups).join(Courses). \
+            filter(Courses.year == Const.YEAR). \
+            order_by(Courses.name, Groups.name, Journals.date, Journals.tstart)
+    else:
+        fjourn = g.db_sess.query(Journals).join(Groups).join(Courses). \
+            filter(Groups.idUsers == current_user.id, Courses.year == Const.YEAR). \
+            order_by(Journals.date, Journals.tstart)
     if form.ff_groups.data != 0:
         dat = dat.filter(Groups.id == form.ff_groups.data)
         fjourn = fjourn.filter(Groups.id == form.ff_groups.data)
@@ -267,10 +291,11 @@ def login():
     if form.validate_on_submit():
         user = g.db_sess.query(Users).join(Roles).join(Priv).filter(Users.login == form.login.data).first()
         if user and user.check_password(form.password.data):
-            login_user(user, remember=form.remember_me.data)
-            session.current_user = user
-            current_user.year = Const.YEAR
-            return redirect("/journ")
+            if user.roles.priv.access[Const.AU_PREPOD] == '1':
+                login_user(user, remember=form.remember_me.data)
+                session.current_user = user
+                current_user.year = Const.YEAR
+                return redirect("/journ")
         return render_template('login.html',
                                message="Неправильный логин или пароль",
                                form=form)
@@ -375,4 +400,5 @@ def index_free():
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0')
+#    app.run(host='0.0.0.0')
 #    app.run(debug=True)

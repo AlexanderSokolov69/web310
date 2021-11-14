@@ -95,7 +95,9 @@
         </td>
         <td>{% block footer02 %}{% endblock %}</td>
         <td>{% block footer03 %}{% endblock %}</td>
-        <td style="width: 200px;">{% block footer04 %} {% endblock %}</td>
+        <td style="width: 200px;">{% block footer04 %}
+            <a class="bottom_line">{{session['access']}}</a>
+            {% endblock %}</td>
     </tr>
     </tbody>
 </table>

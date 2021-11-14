@@ -15,6 +15,7 @@ from data.db_class_monts import Monts
 from data.db_class_rasp import Rasp
 from data.db_class_users import Users
 from data.db_session import executeSQL
+from data.misc import check_access
 
 
 class JournFilterForm(FlaskForm):
@@ -26,17 +27,12 @@ class JournFilterForm(FlaskForm):
 
     def __init__(self, *args, **kwargs):
         super(JournFilterForm, self).__init__(*args, **kwargs)
-        # try:
-            # with db_session.create_session() as db_sess:
-            #     # group = executeSQL(f"""db_sess.query(Groups).join(Courses).\
-            #     #     filter(Groups.idUsers == current_user.id, Courses.year == Const.YEAR).order_by(Groups.name)""")
-            #     try:
-        group = g.db_sess.query(Groups).join(Courses).\
-            filter(Groups.idUsers == current_user.id, Courses.year == Const.YEAR).order_by(Groups.name)
-        # except Exception as err:
-        #     group = None
-        #     flash(f"Ошибка обработки SQL", category='error')
-        self.ff_groups.choices = [(g.id, u"%s" % f'{g.name}') for g in group]
+        group = g.db_sess.query(Groups).join(Courses)
+        if check_access([Const.AU_ALLGRP]):
+            group = group.filter(Courses.year == Const.YEAR).order_by(Groups.name)
+        else:
+            group = group.filter(Groups.idUsers == current_user.id, Courses.year == Const.YEAR).order_by(Groups.name)
+        self.ff_groups.choices = [(g.id, f"{g.name} {g.comment}") for g in group]
         self.ff_groups.choices.insert(0, (0, u"Не выбрана"))
         if self.ff_groups.data is not None:
             self.ff_groups.default = self.ff_groups.data
@@ -56,8 +52,12 @@ class JournFilterForm(FlaskForm):
             self.ff_month.data = session.get('ff_month', 0)
         # Расписание занятий
         try:
-            self.rasp = g.db_sess.query(Rasp).join(Groups).join(Days).join(Kabs). \
-                filter(Groups.idUsers == current_user.id).order_by(Groups.name, Rasp.idDays)
+            if check_access([Const.AU_ALLGRP]):
+                self.rasp = g.db_sess.query(Rasp).join(Groups).join(Days).join(Kabs). \
+                    order_by(Rasp.idDays, Rasp.tstart, Groups.name)
+            else:
+                self.rasp = g.db_sess.query(Rasp).join(Groups).join(Days).join(Kabs). \
+                    filter(Groups.idUsers == current_user.id).order_by(Groups.name, Rasp.idDays)
         except Exception as err:
             self.rasp = None
             flash(f"Ошибка обработки SQL", category='error')

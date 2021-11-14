@@ -1,8 +1,8 @@
 import datetime
 
-from flask import flash
+from flask import flash, session
 from flask import g
-
+from flask_login import current_user
 from data import db_session
 from data.cl_const import Const
 from data.db_class_journals import Journals
@@ -188,6 +188,16 @@ class Checker():
         except Exception:
             flash(f"Ошибка в формате [00.00.0000]: {field}", category='error')
             return Checker(False)
+
+
+def check_access(test=None):
+    if current_user.is_authenticated and test:
+        acc = current_user.roles.priv.access
+        for tst in test:
+            if acc[tst] != '1':
+                return False
+        return True
+    return False
 
 
 if __name__ == '__main__':

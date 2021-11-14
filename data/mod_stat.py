@@ -1,6 +1,7 @@
 import datetime
 
-from flask import g
+from flask import g, session
+from flask_login import current_user
 
 from data.cl_const import Const
 from data.db_class_courses import Courses
@@ -9,7 +10,7 @@ from data.db_class_groups import Groups
 from data.db_class_journals import Journals
 from data.db_class_monts import Monts
 from data.db_class_users import Users
-from data.misc import MyDict, date_us_ru
+from data.misc import MyDict, date_us_ru, check_access
 
 
 class Statistics:
@@ -38,7 +39,10 @@ class Statistics:
                     item.idGroups = user.idGroups
                     item.id = user.users.id
                     item.name = user.users.name.strip()
-                    item.ima_f = f"{user.users.ima.strip()} {user.users.fam[:2:1]}."
+                    if check_access([Const.AU_FULLNAME]):
+                        item.ima_f = user.users.name.strip()
+                    else:
+                        item.ima_f = f"{user.users.ima.strip()} {user.users.fam[:2:1]}."
                     item.navigator = True if isinstance(user.users.navigator, str) and ('1' in user.users.navigator) else False
                     item.klass = user.users.places.comment.strip()
                     self.spisok_users[user.id] = item
