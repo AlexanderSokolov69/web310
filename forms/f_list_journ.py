@@ -7,7 +7,7 @@ from flask_wtf import FlaskForm
 from werkzeug.datastructures import MultiDict
 from wtforms import SelectField, SubmitField, StringField, FieldList, \
     TextAreaField, BooleanField, IntegerField, FormField, HiddenField
-from wtforms.validators import DataRequired, ValidationError
+from wtforms.validators import DataRequired, ValidationError, length
 
 from data import db_session
 from data.cl_const import Const
@@ -43,11 +43,11 @@ class UserListForm(FlaskForm):
 
 class ListFilterForm(FlaskForm):
     hide_id = HiddenField()
-    fh_theme = TextAreaField(u'Тема занятия')
+    fh_theme = TextAreaField(u'Тема занятия', validators=[length(max=100)])
     fh_date = StringField(u'Дата', validators=[DataRequired()])
     fh_tstart = StringField(u'Начало', validators=[DataRequired()])
     fh_tend = StringField(u'Окончание', validators=[DataRequired()])
-    fh_comment = TextAreaField(u'Доп. комментарий')
+    fh_comment = TextAreaField(u'Доп. комментарий', validators=[length(max=100)])
     fs_spisok = None
     sb_submit = SubmitField('Сохранить')
     sb_cancel = SubmitField('Назад')

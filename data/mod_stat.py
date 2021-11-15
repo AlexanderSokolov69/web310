@@ -24,6 +24,7 @@ class Statistics:
         self.course_name = None
         self.prepod_name = None
         self.users = None
+        self.summary = MyDict()
         self.spisok_users = MyDict()
         users = kwargs.get('users', None)
         if not users and self.idGroups:
@@ -37,17 +38,22 @@ class Statistics:
                 try:
                     item = MyDict()
                     item.idGroups = user.idGroups
+                    item.pl_name = user.users.places.name.strip()
+                    item.pl_comment = user.users.places.comment.strip()
                     item.id = user.users.id
-                    item.name = user.users.name.strip()
+                    item.name = user.users.name.rstrip()
                     if check_access([Const.AU_FULLNAME]):
-                        item.ima_f = user.users.name.strip()
+                        item.ima_f = user.users.name.rstrip()
                     else:
                         item.ima_f = f"{user.users.ima.strip()} {user.users.fam[:2:1]}."
-                    item.navigator = True if isinstance(user.users.navigator, str) and ('1' in user.users.navigator) else False
+                    item.navigator = '1' in str(user.users.navigator)
                     item.klass = user.users.places.comment.strip()
                     self.spisok_users[user.id] = item
                 except Exception as err:
                     print(err)
+
+    def get_summary(self):
+        return self.summary
 
     def get_pres_stat(self):
         if self.idGroups:
@@ -74,7 +80,7 @@ class Statistics:
             users = users.order_by(GroupTable.idGroups, Users.ima, Users.fam)
             # print('формируем self.spisok_users')
             self.user_spisok_create(users)
-
+        
         # print('формируем статистику посещаемости')
         mnt_name = Monts().get_dict()
         presents = MyDict()
@@ -107,6 +113,12 @@ class Statistics:
             pass
         # print('раскладываем статистику посещаемости по персоналиям')
         out_list = MyDict()
+        pres_ids = set()
+        users_set = set()
+        users_set_nav = set()
+        users_places = MyDict()
+        users_pl_comment = MyDict()
+
         for grp in presents.keys():
             ghead = MyDict()
             ghead.id = 'ID'
@@ -144,6 +156,17 @@ class Statistics:
                 for d, item in zip (presents[grp].keys(), presents[grp].values()):
                     month = datetime.date.fromisoformat(d).month
                     pres = us.id in item.present
+
+                    users_set.add(us.id)
+                    users_pl_comment[us.pl_comment] = users_pl_comment.get(us.pl_comment, set())
+                    users_pl_comment[us.pl_comment].add(us.id)
+                    users_places[us.pl_name] = users_places.get(us.pl_name, set())
+                    users_places[us.pl_name].add(us.id)
+                    if us.navigator:
+                        users_set_nav.add(us.id)
+                    if pres:
+                        pres_ids.add(us.id)
+
                     cnt = head.stars.get(month, ['', 0, 0, 0, 0])
                     cnt = [mnt_name[month], cnt[1] + 1, cnt[2] + pres, cnt[3] + item.lhour, cnt[4] + item.lhour * pres]
                     head.stars[month] = cnt
@@ -184,6 +207,27 @@ class Statistics:
             for mnt in out_list[grp].stars.keys():
                 prc = round(100 * out_list[grp].stars[mnt][2] / out_list[grp].stars[mnt][1], 1)
                 out_list[grp].stars[mnt].append(prc)
+
+        self.summary['kids_pres'] = len(pres_ids)
+        self.summary['kids'] = len(users_set)
+        self.summary['kids_nav'] = len(users_set_nav)
+        self.summary.places = MyDict()
+
+        for item in users_places.keys():
+            users_places[item] = len(users_places[item])
+        self.summary.pl_comment = MyDict()
+        for item in sorted(users_places.items(), key=lambda x: x[1], reverse=True):
+            self.summary.places[item[0]] = item[1]
+        self.summary.pl_comment = MyDict()
+
+        def func(x):
+            try:
+                return int(x[0].split()[0])
+            except Exception:
+                return 0
+
+        for item in sorted(users_pl_comment.items(), key=func):
+            self.summary.pl_comment[item[0]] = len(item[1])
         if self.idGroups:
             return out_list[self.idGroups]
         return out_list

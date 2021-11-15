@@ -157,12 +157,12 @@ def jorn_edit(id_rec):
                     current.date = date_ru_us(form.fh_date.raw_data[0])
                     current.tstart = form.fh_tstart.raw_data[0]
                     current.tend = form.fh_tend.raw_data[0]
-                    current.name = form.fh_theme.raw_data[0].strip()
+                    current.name = form.fh_theme.raw_data[0].strip()[:100:1]
                     current.present = ' '.join(present)
                     current.estim = ' '.join(estim)
                     current.shtraf = ' '.join(shtraf)
                     current.usercomm = ' '.join(usercomm)
-                    current.comment = form.fh_comment.raw_data[0].strip()
+                    current.comment = form.fh_comment.raw_data[0].strip()[:100:1]
                     g.db_sess.commit()
                 else:
                     flash(f"Ошибка обработки SQL", category='error')
@@ -215,6 +215,7 @@ def journ_view():
             order_by(Journals.date, Journals.tstart)
     if form.ff_groups.data != 0:
         dat = dat.filter(Groups.id == form.ff_groups.data)
+        cnt = dat.count()
         fjourn = fjourn.filter(Groups.id == form.ff_groups.data)
     if form.ff_month.data != 0:
         fjourn = fjourn.filter(extract('month', Journals.date) == form.ff_month.data)
@@ -253,6 +254,7 @@ def journ_view():
 def stat_view():
     form = StatFilterForm()
     stat = None
+    summary = MyDict()
     if request.method == 'POST' and form.validate_on_submit():
         param = MyDict()
         param['date_from'] = form.fr_bdate.data.isoformat()
@@ -270,10 +272,11 @@ def stat_view():
             stat = obj.get_stat_grupped(id='idGroups')
         else:
             stat = obj.get_stat_grupped()
+        summary = obj.get_summary()
     # else:
     #     stat = Statistics(date_to=datetime.date.today().isoformat()).get_stat_grupped()
     heads = ['Месяц', 'Штатная посещаемость', 'Фактическая посещаемость', 'Чел/часы по расписанию', 'Чел/часы по факту', '% посещаемости']
-    return render_template("stat01_view.html", stat_groups=stat, head=heads, form=form)
+    return render_template("stat01_view.html", stat_groups=stat, head=heads, form=form, summary=summary)
 
 
 @app.route('/', methods=['GET', 'POST'])
@@ -399,6 +402,6 @@ def index_free():
 
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0')
 #    app.run(host='0.0.0.0')
-#    app.run(debug=True)
+#    app.run(host='0.0.0.0')
+    app.run(debug=True)

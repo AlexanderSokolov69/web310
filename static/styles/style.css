@@ -40,4 +40,5 @@ h4              { font-size: 1.2em; }
 .icon_star      {  width: 16px; height: 16px; }
 .form_errors    { font-weight: bold; border: 1px solid #FF4343; background: #FF9C9C; }
 .it_cube        { font-size: 18px; }
-.bottom_line    { font-weight: bold; font-size: 14px; }
+.bottom_line    { font-weight: bold; font-size: 12px; }
+.stat_main      { font-weight: bold; font-size: 18px;  width: 20%; text-align: center; }

@@ -22,7 +22,7 @@
                         <td align="left">{{ field.label(class="area") }}</td>
                         <td align="right">
                             {% if loop.index > 2 %}
-                           {{ field(class="list_wide") }}
+                            {{ field(class="list_wide") }}
                             {% else %}
                             {{ field(class="list_wide", size=10) }}
                             {% endif %}
@@ -37,6 +37,29 @@
         </tbody>
     </table>
     <hr>
+    <a class="it_cube">Статистика по выборке:</a>
+
+        <table class="top_field" border="1" cellpadding="5" cellspacing="4" width="100%">
+            <tbody>
+            <tr><td>Зачислено детей:</td><td class="stat_main">{{summary.kids}}</td></tr>
+            <tr><td>Учтено в "Навигаторе":</td><td class="stat_main">{{summary.kids_nav}}</td></tr>
+            <tr><td>Посещало занятия:</td><td class="stat_main">{{summary.kids_pres}}</td></tr>
+            </tbody>
+        </table>
+    {% if summary.places %}
+    <hr>
+        <a class="it_cube">Разбивка учебным заведениям:</a>
+            <table class="top_field" border="1" cellpadding="5" cellspacing="4" width="100%">
+            <tbody>
+            {% for item in summary.places.items() %}
+            <tr>
+                <td>{{item[0]}}</td>
+                <td width="20%" align="center">{{item[1]}}</td>
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+{% endif %}
 </form>
 {% endblock %}
 
@@ -69,5 +92,21 @@
     </table>
     {% endfor %}
     {% endif %}
+        {% if summary.pl_comment %}
+    <hr>
+        <a class="it_cube">Разбивка по возрастам:</a>
+
+            <table class="top_field" border="1" cellpadding="5" cellspacing="4" width="300px">
+            <tbody>
+            {% for item in summary.pl_comment.items() %}
+            <tr>
+                <td>{{item[0]}}</td>
+                <td width="20%" align="center">{{item[1]}}</td>
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+{% endif %}
+
 </div>
 {% endblock %}
