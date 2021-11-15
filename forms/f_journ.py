@@ -28,7 +28,7 @@ class JournFilterForm(FlaskForm):
     def __init__(self, *args, **kwargs):
         super(JournFilterForm, self).__init__(*args, **kwargs)
         group = g.db_sess.query(Groups).join(Courses)
-        if check_access([Const.AU_ALLGRP]):
+        if check_access([Const.AU_ALLGRP], snd=False):
             group = group.filter(Courses.year == Const.YEAR).order_by(Groups.name)
         else:
             group = group.filter(Groups.idUsers == current_user.id, Courses.year == Const.YEAR).order_by(Groups.name)
@@ -52,7 +52,7 @@ class JournFilterForm(FlaskForm):
             self.ff_month.data = session.get('ff_month', 0)
         # Расписание занятий
         try:
-            if check_access([Const.AU_ALLGRP]):
+            if check_access([Const.AU_ALLGRP], snd=False):
                 self.rasp = g.db_sess.query(Rasp).join(Groups).join(Days).join(Kabs). \
                     order_by(Rasp.idDays, Rasp.tstart, Groups.name)
             else:

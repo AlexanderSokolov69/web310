@@ -18,10 +18,11 @@ class Const:
     ACC_PREPOD = '1%'
     ACC_CUBIST = '0%'
 
-    AU_PREPOD = 0
-    AU_FULLNAME = 1
-    AU_ALLGRP = 2
-    AU_EDITOR = 3
+    # roles.priv.access   00000000 check_access(test: list) --> Boolean
+    AU_PREPOD = 0       # 1_______ Зарегистрированный пользователь
+    AU_FULLNAME = 1     # _1______ Просмотр персональных данных
+    AU_ALLGRP = 2       # __1_____ Доступ ко всем журналам занятий Куба
+    AU_EDITOR = 3       # ___1____ Права на корректировку журналов
 
     # Users
     USR_ID = 0

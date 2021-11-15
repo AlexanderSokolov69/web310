@@ -1,6 +1,5 @@
 import datetime
 from flask import g
-import os
 
 from flask import Flask, render_template, request, session, flash
 from flask_login import LoginManager, login_user, logout_user, login_required, current_user
@@ -10,16 +9,14 @@ from data import db_session
 from data.cl_const import Const
 from data.db_class_access import access_action
 from data.db_class_courses import Courses
-from data.db_class_group_table import GroupTable
 from data.db_class_groups import Groups
 from data.db_class_journals import Journals
-from data.db_class_monts import Monts
 from data.db_class_priv import Priv
 from data.db_class_rasp import Rasp
 from data.db_class_roles import Roles
 from data.db_class_users import Users
 from data.misc import MyDict, date_us_ru, date_ru_us, journ_fill_month, journ_clear_month, Checker, check_access
-from data.mod_stat import Statistics
+from forms.f_mod_stat import Statistics
 from forms.f_journ import JournFilterForm
 from forms.f_list_journ import ListFilterForm
 from forms.f_new_rasp import NewRasp
@@ -93,8 +90,6 @@ def rasp_add(id_rec):
                 flash('Запись добавлена', category='success')
             return redirect("/journ")
         return render_template("rasp_add.html", form=form)
-    else:
-        flash('Доступ запещён', category='error')
     return redirect("/journ")
 
 
@@ -106,8 +101,6 @@ def rasp_delete(id_rec):
             g.db_sess.delete(rasp)
             g.db_sess.commit()
             flash('Запись удалена', category='success')
-    else:
-        flash('Доступ запещён', category='error')
     return redirect("/journ")
 
 
@@ -125,8 +118,6 @@ def jorn_add(id_rec):
         g.db_sess.add(journ)
         g.db_sess.commit()
         flash('Запись добавлена', category='success')
-    else:
-        flash('Доступ запещён', category='error')
     return redirect("/journ")
 
 
@@ -168,8 +159,6 @@ def jorn_edit(id_rec):
                     flash(f"Ошибка обработки SQL", category='error')
             return redirect("/journ")
         return render_template("list_edit.html", form=form, groupname=groupname)
-    else:
-        flash('Доступ запещён', category='error')
     return redirect("/journ")
 
 
@@ -193,8 +182,6 @@ def jorn_delete(id_rec):
                         flash('[SQL] Ошибка удаления', category='error')
             else:
                 flash('Заполнена тема занятия', category='error')
-    else:
-        flash('Доступ запещён', category='error')
     return redirect("/journ")
 
 
@@ -205,7 +192,7 @@ def journ_view():
     dat = form.rasp
     cnt = dat.count()
     journ = []
-    if check_access([Const.AU_ALLGRP]):
+    if check_access([Const.AU_ALLGRP], snd=False):
         fjourn = g.db_sess.query(Journals).join(Groups).join(Courses). \
             filter(Courses.year == Const.YEAR). \
             order_by(Courses.name, Groups.name, Journals.date, Journals.tstart)

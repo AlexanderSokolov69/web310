@@ -1,7 +1,6 @@
 import datetime
 
 from flask import g, session
-from flask_login import current_user
 
 from data.cl_const import Const
 from data.db_class_courses import Courses
@@ -42,7 +41,7 @@ class Statistics:
                     item.pl_comment = user.users.places.comment.strip()
                     item.id = user.users.id
                     item.name = user.users.name.rstrip()
-                    if check_access([Const.AU_FULLNAME]):
+                    if check_access([Const.AU_FULLNAME], snd=False):
                         item.ima_f = user.users.name.rstrip()
                     else:
                         item.ima_f = f"{user.users.ima.strip()} {user.users.fam[:2:1]}."
@@ -62,7 +61,6 @@ class Statistics:
                 filter(Journals.date.between(self.date_from, self.date_to)).\
                 filter(Journals.idGroups == self.idGroups).order_by(Journals.date)
         else:
-
             pres_jrn = g.db_sess.query(Journals).join(GroupTable, GroupTable.idGroups == Journals.idGroups).\
                 join(Groups, Groups.id == Journals.idGroups).join(Courses, Courses.id == Groups.idCourses).\
                 filter(Journals.date.between(self.date_from, self.date_to))
@@ -80,7 +78,6 @@ class Statistics:
             users = users.order_by(GroupTable.idGroups, Users.ima, Users.fam)
             # print('формируем self.spisok_users')
             self.user_spisok_create(users)
-        
         # print('формируем статистику посещаемости')
         mnt_name = Monts().get_dict()
         presents = MyDict()
@@ -219,13 +216,14 @@ class Statistics:
         for item in sorted(users_places.items(), key=lambda x: x[1], reverse=True):
             self.summary.places[item[0]] = item[1]
         self.summary.pl_comment = MyDict()
+        # ----------------------
 
         def func(x):
             try:
                 return int(x[0].split()[0])
             except Exception:
                 return 0
-
+        # ----------------------
         for item in sorted(users_pl_comment.items(), key=func):
             self.summary.pl_comment[item[0]] = len(item[1])
         if self.idGroups:

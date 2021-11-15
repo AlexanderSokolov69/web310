@@ -1,9 +1,8 @@
 import datetime
 
-from flask import flash, session
-from flask import g
+from flask import g, flash, session
 from flask_login import current_user
-from data import db_session
+
 from data.cl_const import Const
 from data.db_class_journals import Journals
 
@@ -26,6 +25,11 @@ class MyDict(dict):
 
 
 def spis_to_dic(spis):  # format: "int='comment' int='comment' ..."
+    """
+    Конвертация списка в словарь
+    :param spis:
+    :return:
+    """
     dic = MyDict()
     if isinstance(spis, str):
         for rec in spis.split():
@@ -145,6 +149,9 @@ def journ_clear_month(*args, **kwargs):
 
 
 class Checker():
+    """
+    Класс проверки форматов данных
+    """
     def __init__(self, flag=True):
         self.flag = flag
 
@@ -190,16 +197,27 @@ class Checker():
             return Checker(False)
 
 
-def check_access(test=None):
+def check_access(test=None, snd=True):
+    """
+    Проверка полномочий доступа к режимам
+    :param test:
+    :param snd:
+    :return:
+    """
     if current_user.is_authenticated and test:
         acc = current_user.roles.priv.access
-        for tst in test:
-            if acc[tst] != '1':
-                return False
-        return True
+        try:
+            for tst in test:
+                if acc[tst] != '1':
+                    break
+            else:
+                return True
+        except Exception:
+            pass
+    if snd:
+        flash('Недостаточно прав..', category='error')
     return False
 
 
 if __name__ == '__main__':
-    d = MyDict(attr='32')
-    print(str(d))
+    pass
