@@ -42,3 +42,4 @@ h4              { font-size: 1.2em; }
 .it_cube        { font-size: 18px; }
 .bottom_line    { font-weight: bold; font-size: 12px; }
 .stat_main      { font-weight: bold; font-size: 18px;  width: 20%; text-align: center; }
+.block_content  { vertical-align: top; padding: 10px;}

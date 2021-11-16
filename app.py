@@ -260,9 +260,10 @@ def stat_view():
         else:
             stat = obj.get_stat_grupped()
         summary = obj.get_summary()
+        print(summary.kvart)
     # else:
     #     stat = Statistics(date_to=datetime.date.today().isoformat()).get_stat_grupped()
-    heads = ['Месяц', 'Штатная посещаемость', 'Фактическая посещаемость', 'Чел/часы по расписанию', 'Чел/часы по факту', '% посещаемости']
+    heads = ['Период', 'Штатная посещаемость', 'Фактическая посещаемость', 'Чел/часы по расписанию', 'Чел/часы по факту', '% посещаемости']
     return render_template("stat01_view.html", stat_groups=stat, head=heads, form=form, summary=summary)
 
 

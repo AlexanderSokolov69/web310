@@ -115,6 +115,7 @@ class Statistics:
         users_set_nav = set()
         users_places = MyDict()
         users_pl_comment = MyDict()
+        users_kvart = MyDict()
 
         for grp in presents.keys():
             ghead = MyDict()
@@ -202,9 +203,21 @@ class Statistics:
                     new_pres.append(state0)
                 user['present'] = new_pres
             for mnt in out_list[grp].stars.keys():
-                prc = round(100 * out_list[grp].stars[mnt][2] / out_list[grp].stars[mnt][1], 1)
+                users_kvart[Const.KV[mnt]] = users_kvart.get(Const.KV[mnt], ['', 0, 0, 0, 0])
+                if users_kvart[Const.KV[mnt]][0]:
+                    users_kvart[Const.KV[mnt]][1] += out_list[grp].stars[mnt][1]
+                    users_kvart[Const.KV[mnt]][2] += out_list[grp].stars[mnt][2]
+                    users_kvart[Const.KV[mnt]][3] += out_list[grp].stars[mnt][3]
+                    users_kvart[Const.KV[mnt]][4] += out_list[grp].stars[mnt][4]
+                else:
+                    users_kvart[Const.KV[mnt]] = out_list[grp].stars[mnt]
+                try:
+                    prc = round(100 * out_list[grp].stars[mnt][2] / out_list[grp].stars[mnt][1], 1)
+                except ZeroDivisionError:
+                    prc = 0
                 out_list[grp].stars[mnt].append(prc)
 
+        self.summary['kvart'] = users_kvart
         self.summary['kids_pres'] = len(pres_ids)
         self.summary['kids'] = len(users_set)
         self.summary['kids_nav'] = len(users_set_nav)
@@ -217,6 +230,9 @@ class Statistics:
             self.summary.places[item[0]] = item[1]
         self.summary.pl_comment = MyDict()
         # ----------------------
+        for kv in self.summary.kvart.items():
+            self.summary.kvart[kv[0]][0] = kv[0]
+            self.summary.kvart[kv[0]][5] = round(100 * kv[1][2] / kv[1][1], 1)
 
         def func(x):
             try:

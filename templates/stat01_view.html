@@ -39,27 +39,36 @@
     <hr>
     <a class="it_cube">Статистика по выборке:</a>
 
-        <table class="top_field" border="1" cellpadding="5" cellspacing="4" width="100%">
-            <tbody>
-            <tr><td>Зачислено детей:</td><td class="stat_main">{{summary.kids}}</td></tr>
-            <tr><td>Учтено в "Навигаторе":</td><td class="stat_main">{{summary.kids_nav}}</td></tr>
-            <tr><td>Посещало занятия:</td><td class="stat_main">{{summary.kids_pres}}</td></tr>
-            </tbody>
-        </table>
+    <table class="top_field" border="1" cellpadding="5" cellspacing="4" width="100%">
+        <tbody>
+        <tr>
+            <td>Зачислено детей:</td>
+            <td class="stat_main">{{summary.kids}}</td>
+        </tr>
+        <tr>
+            <td>Учтено в "Навигаторе":</td>
+            <td class="stat_main">{{summary.kids_nav}}</td>
+        </tr>
+        <tr>
+            <td>Посещало занятия:</td>
+            <td class="stat_main">{{summary.kids_pres}}</td>
+        </tr>
+        </tbody>
+    </table>
     {% if summary.places %}
     <hr>
-        <a class="it_cube">Разбивка учебным заведениям:</a>
-            <table class="top_field" border="1" cellpadding="5" cellspacing="4" width="100%">
-            <tbody>
-            {% for item in summary.places.items() %}
-            <tr>
-                <td>{{item[0]}}</td>
-                <td width="20%" align="center">{{item[1]}}</td>
-            </tr>
-            {% endfor %}
-            </tbody>
-        </table>
-{% endif %}
+    <a class="it_cube">Разбивка учебным заведениям:</a>
+    <table class="top_field" border="1" cellpadding="5" cellspacing="4" width="100%">
+        <tbody>
+        {% for item in summary.places.items() %}
+        <tr>
+            <td>{{item[0]}}</td>
+            <td width="20%" align="center">{{item[1]}}</td>
+        </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+    {% endif %}
 </form>
 {% endblock %}
 
@@ -92,21 +101,45 @@
     </table>
     {% endfor %}
     {% endif %}
-        {% if summary.pl_comment %}
+    {% if summary.pl_comment %}
     <hr>
-        <a class="it_cube">Разбивка по возрастам:</a>
-
-            <table class="top_field" border="1" cellpadding="5" cellspacing="4" width="300px">
-            <tbody>
-            {% for item in summary.pl_comment.items() %}
-            <tr>
-                <td>{{item[0]}}</td>
-                <td width="20%" align="center">{{item[1]}}</td>
-            </tr>
-            {% endfor %}
-            </tbody>
-        </table>
-{% endif %}
+    <table class="block_content">
+        <tbody>
+        <tr>
+            <td class="block_content">
+                <a class="it_cube">Разбивка по возрастам:</a>
+                <table class="top_field" border="1" cellpadding="5" cellspacing="4" width="300px">
+                    <tbody>
+                    {% for item in summary.pl_comment.items() %}
+                    <tr>
+                        <td>{{item[0]}}</td>
+                        <td width="20%" align="center">{{item[1]}}</td>
+                    </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </td>
+            <td class="block_content">
+                <a class="it_cube">Разбивка по кварталам:</a>
+                <table class="main_table" border="1" cellspacing="1" cellpadding="4">
+                    <tbody>
+                    {% for i in range(6) %}
+                    <tr class="table_body">
+                        <th align="left">{{head[i]}}</th>
+                        {% for item in summary.kvart.values() %}
+                        <td>
+                            {{item[i]}}
+                        </td>
+                        {% endfor %}
+                    </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+    {% endif %}
 
 </div>
 {% endblock %}
