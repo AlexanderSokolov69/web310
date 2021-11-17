@@ -273,7 +273,7 @@ class Statistics:
             cur.prepod_name = f"с {date_us_ru(self.date_from)} по {date_us_ru(self.date_to)}"
             cur.stars = cur.get('stars', MyDict())
             for mnt in item.stars.items():
-                old = cur.stars.get(mnt[0], ['', 0, 0, 0, 0])
+                old = cur.stars.get(mnt[0], ['', 0, 0, 0, 0, 0])
                 cur.stars[mnt[0]] = [mnt[1][0],
                                      old[1] + mnt[1][1],
                                      old[2] + mnt[1][2],
@@ -288,7 +288,7 @@ class Statistics:
         uslist = self.get_pres_stat()
         mnt_name = Monts().get_dict()
         grp_days = MyDict()
-        grp_days[0] = ['Месяц',
+        grp_days[0] = ['Период',
                        'Списочная посещаемость',
                        'Фактическая посещаемость',
                        'Списочных чел/часов',
